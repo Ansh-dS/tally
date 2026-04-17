@@ -1,0 +1,21 @@
+# 1. dockerFile (text document):  it runs some terminal commands which we mentioned , like we run a file while booting a operating system?
+#2. each container runs any software which  want to keep separate from your main computer
+#3. docker-compose.yml: it make networking b/w multiple containers at once.
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: tally-postgres
+    restart: no # Only starts when YOU manually type docker-compose up
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: tallydb
+    ports:
+      - '55432:5432' # Map host 55432 to container 5432 (Postgres default)
+    # volumes: you can stop the container, restart your computer, or even update the Postgres image, and your forms/users won't be deleted.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
