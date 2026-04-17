@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+/*
+no need to write 'components/dist/token.css' as we have already mentioned the location compompiled file in package.json 
+*/
+@import 'components/token.css';
+@import 'components/global.css';
+/* 
+added this to color the canvas
+which is present in next.js (check using developers tool)
+*/
+@layer base {
+  html,
+  body {
+    /* Uses the variables defined in your @theme block */
+    background-color: var(--color-surface-base);
+    color: var(--color-fg-primary);
+    font-family: var(--font-base);
+    min-height: 100vh;
+  }
+}
