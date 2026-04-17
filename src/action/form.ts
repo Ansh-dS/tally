@@ -130,3 +130,73 @@ export async function deleteForm(input: deleteInputs, path: string) {
         return handleQueryError(err, path)
     }
 }
+
+
+
+interface AllFormsProps {
+  userId: string
+  currentPath: string
+}
+
+export async function allForms({ userId, currentPath }: AllFormsProps) {
+  try {
+    // 1. Validation: Ensure we actually have a userId
+    if (!userId) {
+      return {
+        success: false,
+        data: null,
+        message: "Unauthorized: User ID is required."
+      }
+    }
+
+    // 2. Fetch: Get forms from Prisma
+    const forms = await prismaClient.form.findMany({
+      where: {
+        userId: userId,
+      },
+      // Always show the most recently updated forms first
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      // Pro-tip: Only select the fields you need for the dashboard 
+      // to keep the payload light.
+      select: {
+        id: true,
+        title: true,
+        published: true,
+        updatedAt: true,
+        _count: {
+          select: { submissions: true }
+        }
+      }
+    })
+
+    // Keep dashboard payload shape stable even though schema uses published/submissions.
+    const normalizedForms = forms.map((form) => ({
+      id: form.id,
+      title: form.title,
+      status: form.published ? 'published' : 'draft',
+      updatedAt: form.updatedAt,
+      _count: {
+        responses: form._count.submissions,
+      },
+    }))
+
+    // 3. Optional: Trigger a revalidate if the path requires fresh data
+    // revalidatePath(currentPath)
+
+    return {
+      success: true,
+      data: normalizedForms,
+    }
+
+  } catch (error) {
+    console.error(`[ALL_FORMS_ERROR]:`, error)
+    
+    return {
+      success: false,
+      data: null,
+      message: "Failed to fetch forms. Please try again later."
+    }
+  }
+}
