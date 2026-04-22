@@ -1,0 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum IntegrationTypes {
+  AIRTABLE   
+  GOOGLE_SHEETS 
+  ZAPIER        
+  NOTION        
+}
+
+
+// stores profile of a user 
+model User{ 
+  id          String      @id @default(cuid())
+  password    String
+  email       String      @unique
+  lastName    String?
+  firstName   String?
+  avatar      String? 
+  plan        String      @default("free")
+
+  //Relations
+  sessions    Session[]
+  forms       Form[]
+  integration Integration[]
+  
+  //Basics
+  createdAt     DateTime  @default(now())
+
+  //making search easy. 
+  @@index([email])
+
+  // Use this line to make the database table lowercase 'users'
+  @@map("users")
+
+
+}
+
+
+// each row is an authentication session.
+// storing JWT for authentication with expiration.  
+model Session{
+  id          String      @id @default(cuid())
+  token       String      @unique @db.Text
+  userId      String         // foriegn key. 
+  expiresAt   DateTime  
+
+  //Relations
+  user  User  @relation(fields:[userId], references:[id],onDelete: Cascade  )
+  
+  //Basics
+  createdAt     DateTime  @default(now())
+
+  //making search easy. 
+  @@index([userId])
+  @@index([token])
+
+  // Use this line to make the database table lowercase 'users'
+  @@map("sessions")
+}
+
+
+// Form data created by a user  
+model Form{ 
+  id          String      @id @default(cuid())
+  title         String 
+  description   String? 
+  blocks        Json                        // what field a "x" user contains?
+  settings      Json                        // Additional configuration
+  published     Boolean     @default(false) // can we see form or not as if we editing then users can't see this form. 
+  publishedUrl  String?     @unique         // the place we are publishing form 
+  userId        String
+
+  // Relations
+  author User @relation(fields: [userId] , references: [id], onDelete:Cascade )
+  submissions   Response[]
+  integrations    FormIntegration[]
+
+  // Basics
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  //making search easy. 
+  @@index([userId])
+  @@index([published])
+
+  // Use this line to make the database table lowercase 'users'
+  @@map("forms")
+}
+
+
+// contains data and insights about data 
+model Response{ 
+  id          String         @id @default(cuid())
+  data          Json
+  summary       String?                             //AI-generated summary 
+  score         Int?                                //Lead quality score out of 100. 
+  delivered      Boolean     @default(false)        //Has webhook been sent to integrations. 
+  deliveredAt   DateTime?                            // when delivered? 
+  formId        String           
+
+  // Relations
+  form Form @relation(fields:[formId], references: [id],onDelete: Cascade)
+
+  // Basics
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  //making search easy. 
+  @@index([formId])
+  @@index([delivered])
+  @@index([createdAt])
+
+  // Use this line to make the database table lowercase 'users'
+  @@map("responses")
+}
+
+
+//Stores encrypted OAuth tokens of external services. 
+model Integration{
+  id          String        @id @default(cuid())
+  name          String                      // User-defined name.     
+  type          IntegrationTypes            // Integration type:airtable , google_sheets
+  config        Json        @default("{}")  // integration-specific settings
+  token         String      @unique @db.Text
+  userId        String 
+  formIntegrations FormIntegration[]
+
+  // Relations
+  user User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basics
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // making serach easy. 
+  @@index([userId])
+  @@unique([userId, type])                  // User can have only one integration type per person.
+
+   // Use this line to make the database table lowercase 'users'
+  @@map("integrations")
+  
+}
+
+
+// The problem is we want to send the data from form to integrations but can have different field there. 
+// Hence we use json(fieldMapping). 
+model FormIntegration {
+  id          String        @id @default(cuid())
+  formId          String
+  integrationId   String
+  fieldMapping    Json      @default("{}")      // This json maps the form fields to integration fields.
+  enabled         Boolean   @default(true)      // Can we send the data from form to integratin 
+
+  // Relations
+  form Form @relation(fields:[formId], references:[id],onDelete: Cascade) 
+  integrations Integration @relation(fields:[integrationId], references:[id],onDelete: Cascade) 
+
+  // Basics
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // making serach easy. 
+  @@index([formId])
+  @@index([integrationId])
+  @@unique([formId, integrationId])              // One form can't have the same integration twice. 
+   
+  @@map("form_integrations")
+}

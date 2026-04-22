@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
+
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,7 +20,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@actions/*": ["./src/actions/*"],
+      "@components/*": ["./src/components/*"],
+      "@auth/*": ["./src/lib/auth/*"],
+      "@db/*": ["./src/lib/db/*"],
+      "@schemas/*": ["./src/lib/schemas/*"],
+      "@utils/*": ["./src/lib/utils/*"]
     }
   },
   "include": [
