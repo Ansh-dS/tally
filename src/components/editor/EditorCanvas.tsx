@@ -12,14 +12,14 @@ import {
   Stack,
   EmptyState,
   Sortable,
-  SortableItem
+  SortableItem,
 } from 'components'
 
 function CanvasBlock({
   block,
   index,
   onSelect,
-  isSelected
+  isSelected,
 }: {
   block: FormBlock
   index: number
@@ -27,7 +27,7 @@ function CanvasBlock({
   isSelected: boolean
 }) {
   // FIXED: Pull updateBlock from store so it can be passed to the preview
-  const updateBlock = useFormStore(state => state.updateBlock)
+  const updateBlock = useFormStore((state) => state.updateBlock)
 
   const { ref, isDragging, isDropTarget } = useSortable({
     id: block.id,
@@ -39,12 +39,12 @@ function CanvasBlock({
 
   return (
     <Sortable
-      ref={
-        ref}
-      className={`w-full m-m  ${isDragging ? 'opacity-50 shadow-lg' : 'opacity-100'
-        } ${isDropTarget ? 'ring-2 ring-brand' : ''}`}
+      ref={ref}
+      className={`w-full m-m  ${
+        isDragging ? 'opacity-50 shadow-lg' : 'opacity-100'
+      } ${isDropTarget ? 'ring-2 ring-brand' : ''}`}
     >
-      <SortableItem 
+      <SortableItem
         onClick={onSelect}
         className={`cursor-pointer transition-all ${isSelected ? 'border-brand ring-1 ring-brand' : ''}`}
       >
@@ -56,27 +56,29 @@ function CanvasBlock({
 
 // FIXED: Correctly defined the props interface for the React component
 interface EditorCanvasProps {
-  onSelectBlock: (id: string | null) => void;
-  selectedBlockId: string | null;
+  onSelectBlock: (id: string | null) => void
+  selectedBlockId: string | null
 }
 
-export default function EditorCanvas({ onSelectBlock, selectedBlockId }: EditorCanvasProps) {
+export default function EditorCanvas({
+  onSelectBlock,
+  selectedBlockId,
+}: EditorCanvasProps) {
   const [formTitle, updateTitle] = useState('Untitled Form')
-  const blocks = useFormStore(state => state.blocks)
+  const blocks = useFormStore((state) => state.blocks)
   const { ref } = useDroppable({ id: 'canvas-dropzone' })
 
   return (
-    <Box 
-      ref={ref} 
+    <Box
+      ref={ref}
       className="flex-1 w-full m-s h-full p-2xl border-0 relative"
       onClick={(e) => {
         // If the user clicks the empty canvas background, deselect the active block
         if (e.target === e.currentTarget) {
-          onSelectBlock(null);
+          onSelectBlock(null)
         }
       }}
     >
-
       {/* 1. STATIC HEADER: Not part of dnd-kit array */}
       <Stack className=" pb-xl" gap="sm">
         <Input
@@ -99,10 +101,10 @@ export default function EditorCanvas({ onSelectBlock, selectedBlockId }: EditorC
       */}
         {blocks.length !== 0 ? (
           blocks.map((block, index) => (
-            <CanvasBlock 
-              key={block.id} 
-              block={block} 
-              index={index} 
+            <CanvasBlock
+              key={block.id}
+              block={block}
+              index={index}
               onSelect={() => onSelectBlock(block.id)}
               isSelected={selectedBlockId === block.id}
             />
@@ -110,17 +112,15 @@ export default function EditorCanvas({ onSelectBlock, selectedBlockId }: EditorC
         ) : (
           <EmptyState
             title="Canvas"
-            description='you can drag a block in b/w other blocks and can sort the Questions'
+            description="you can drag a block in b/w other blocks and can sort the Questions"
             variant={'dashed'}
-            className=''
+            className=""
           />
         )}
       </Stack>
-
     </Box>
   )
 }
-
 
 /*
  {blocks.length !== 0 ? blocks.map(block => (

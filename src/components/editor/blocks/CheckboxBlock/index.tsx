@@ -7,5 +7,5 @@ export const CheckboxBlock = {
   icon: CheckSquare,
   component: Checkbox,
   preview: CheckboxPreview,
-  settings:CheckboxSettings
+  settings: CheckboxSettings,
 }

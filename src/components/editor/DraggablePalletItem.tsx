@@ -17,7 +17,7 @@ export function DraggablePaletteItem({ type }: DraggablePaletteItemProps) {
     id: `palette-${type}`,
     data: {
       type: type, // only dropable which having this type (button.....) will be the tragets.
-      isBlueprint: true, // we are using this because of the sortable. 
+      isBlueprint: true, // we are using this because of the sortable.
     },
   })
 

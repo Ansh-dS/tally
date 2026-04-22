@@ -7,5 +7,5 @@ export const RadioBlock = {
   icon: CircleDot,
   component: Radio,
   preview: RadioPreview,
-  settings: RadioSettings
+  settings: RadioSettings,
 }

@@ -1,6 +1,14 @@
 'use client'
 
-import { Sidebar, SidebarItem, Text, Stack, Box, Footer, Input, Select} from 'components' // From your UI library [cite: 1388-1414]
+import {
+  Sidebar,
+  SidebarItem,
+  Text,
+  Stack,
+  Box,
+  Footer,
+  Input,
+} from 'components' // From your UI library [cite: 1388-1414]
 import { LogOut, Search, Plus } from 'lucide-react'
 import { DraggablePaletteItem } from './DraggablePalletItem'
 import { BlockType } from '@utils/store'
@@ -32,7 +40,10 @@ export function EditorSidebar() {
             Elements
           </Text>
           {/* Search bar inside the sidebar header */}
-          <Input startIcon={<Search size={16} className='mr-s' />} placeholder={" Search blocks..."} />
+          <Input
+            startIcon={<Search size={16} className="mr-s" />}
+            placeholder={' Search blocks...'}
+          />
         </Box>
       }
       footer={
@@ -50,7 +61,6 @@ export function EditorSidebar() {
       <Stack className="p-m overflow-y-auto h-screen " gap="lg">
         {CATEGORIES.map((category) => (
           <Box key={category.title} className="border-none m-m">
-           
             <Text
               variant="caption"
               color="secondary"
