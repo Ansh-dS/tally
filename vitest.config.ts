@@ -1,7 +1,7 @@
-import { defineConfig } from 'vitest/config';
-import swc from 'unplugin-swc';
-import path from 'path';
-import { config } from "dotenv";
+import { defineConfig } from 'vitest/config'
+import swc from 'unplugin-swc'
+import path from 'path'
+import { config } from 'dotenv'
 
 export default defineConfig({
   plugins: [swc.vite()],
@@ -15,8 +15,8 @@ export default defineConfig({
       '@db': path.resolve(__dirname, './src/lib/db'),
       '@schemas': path.resolve(__dirname, './src/lib/schemas'),
     },
-    env:{
-      ...config({path:"./.env"}).parsed, 
+    env: {
+      ...config({ path: './.env' }).parsed,
     },
   },
-});
+})

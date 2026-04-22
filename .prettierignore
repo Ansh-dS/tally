@@ -10,4 +10,5 @@ package-lock.json
 .next
 .turbo
 .cache
+.vscode
 

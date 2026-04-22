@@ -1,12 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-   
+    "lib": ["dom", "dom.iterable", "esnext"],
+
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -23,29 +19,14 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@actions/*": [
-        "./src/actions/*"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@auth/*": [
-        "./src/lib/auth/*"
-      ],
-      "@db/*": [
-        "./src/lib/db/*"
-      ],
-      "@schemas/*": [
-        "./src/lib/schemas/*"
-      ],
-      "@utils/*": [
-        "./src/lib/utils/*"
-      ]
+      "@/*": ["./src/*"],
+      "@actions/*": ["./src/actions/*"],
+      "@components/*": ["./src/components/*"],
+      "@auth/*": ["./src/lib/auth/*"],
+      "@db/*": ["./src/lib/db/*"],
+      "@schemas/*": ["./src/lib/schemas/*"],
+      "@utils/*": ["./src/lib/utils/*"]
     }
   },
   "include": [
@@ -56,7 +37,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

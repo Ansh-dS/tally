@@ -7,9 +7,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
+    "check-errors": "pnpm build && pnpm lint:fix && pnpm format",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
@@ -20,16 +21,20 @@
     "test:int": "dotenv -e .env -- vitest run src/lib/auth/__tests__/service.int.test.ts"
   },
   "dependencies": {
+    "@dnd-kit/react": "^0.4.0",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
+    "components": "link:../uiLibrary/packages/ui",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.8.0",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "zod": "^4.3.5"
+    "zod": "^4.3.5",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@swc/core": "^1.15.8",
@@ -43,6 +48,7 @@
     "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "prettier": "^3.8.3",
     "prisma": "^7.2.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
