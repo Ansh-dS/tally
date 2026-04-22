@@ -1,33 +1,35 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { isAuthenticated } from '@auth/service'
+import { protectApiRoute } from '@auth/authorization'
 import { cookies } from 'next/headers'
 import { prismaClient } from '@db/client'
+
 /*
     using isAuthenticate:
         we get the user data after checking the userId in database. 
         otherwise we redirect to the login. 
 */
 
-export interface requireUserOutput {
+export interface AuthorizedUser {
   id: string
   email: string
   firstName: string | null
 }
 
-/* 
-1. cheking weather the userId is correct or not using 'isAuthenticated' 
-2. once we authenticate the user redirect the path. 
-*/
-
-export async function requireUser(
+/**
+ * Enforces authentication on a Server Component or Action.
+ * Step 1: Validates the current session using the protectApiRoute brain.
+ * Step 2: If the access token is dead but a refresh is possible, redirects to the refresh handler.
+ * Step 3: If no valid session exists, redirects to the login page with a callback URL.
+ * Output: Returns the verified AuthorizedUser object or triggers a server-side redirect.
+ */
+export async function getAuthorizedUser(
   currentPath: string
-): Promise<requireUserOutput> {
-  const auth = await isAuthenticated(currentPath)
-  console.log('hi i am isAuthenticated')
-  /* 
-        1. encodeURIComponent: it ecodes the params(key-value pair) correctly.
+): Promise<AuthorizedUser> {
+  const auth = await protectApiRoute(currentPath)
+
+  /* 1. encodeURIComponent: it ecodes the params(key-value pair) correctly.
 
         2.  before: "/forms/report?section=analytics&sort=asc";
             after: https://example.com/login?callbackUrl=%2Fforms%2Freport%3Fsection%3Danalytics%26sort%3Dasc
@@ -35,27 +37,40 @@ export async function requireUser(
         3. in login or other page we first need to decode the path using 'decodeURIComponent.
     */
 
-  // 1. The Intercept: If the token expired, bounce them to the API route
-  if (auth.status === 'error' && auth.error === 'refresh_required') {
-    console.log('hi i am require user', currentPath)
+  // Refresh path: cookie mutation must happen in a Route Handler.
+  if (auth.status === 'error') {
     redirect(`/api/auth/refresh?callbackUrl=${encodeURIComponent(currentPath)}`)
   }
 
-  // 2. The Hard Fail: No valid tokens at all, send to login
   if (auth.status === 'failed') {
     redirect(`/login?callbackUrl=${encodeURIComponent(currentPath)}`)
   }
 
   // Return the verified user so the page can use it
-  const user = auth.data as requireUserOutput
+  const user = auth.data as AuthorizedUser
   return user
 }
 
-export async function logout(userId: string) {
+/**
+ * Terminates the user session and cleans up all security artifacts.
+ * Step 1: Verifies the user's identity before allowing logout (prevents CSRF logouts).
+ * Step 2: Deletes the JWT cookies from the browser.
+ * Step 3: Wipes all session records from the database for this specific user.
+ * Output: Redirects the user to the login page.
+ */
+export async function logout(currentPath = '/dashboard') {
+  const auth = await protectApiRoute(currentPath)
+
+  if (auth.status === 'failed' || auth.status === 'error') {
+    redirect(`/login?callbackUrl=${encodeURIComponent(currentPath)}`)
+  }
+
+  const user = auth.data as AuthorizedUser
   const cookieStore = await cookies()
 
   cookieStore.delete('jwtAccessToken')
   cookieStore.delete('jwtRefreshToken')
+
   /*
         1. currently we are deleting all the sessions oppned on every-device
         2. but using session Id we can logout form each session in-dependendently. 
@@ -63,7 +78,7 @@ export async function logout(userId: string) {
   try {
     await prismaClient.session.deleteMany({
       where: {
-        userId,
+        userId: user.id,
       },
     })
   } catch (err) {
@@ -73,4 +88,3 @@ export async function logout(userId: string) {
   }
   redirect('/login')
 }
-

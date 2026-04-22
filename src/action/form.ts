@@ -1,151 +1,145 @@
 // central data for owner to modify data of form.
 // we can create a single form having all:
 // create, delete etc etc logic because:
-// each asks for different input data. 
+// each asks for different input data.
 
 import { createInputs, updateInputs, deleteInputs } from '@schemas/form'
 import { prismaClient } from '@db/client'
-import { autherization } from '@auth/autherization'
-import { ApiResponse, successResponse } from '@/lib/utils/common'
-import { handleQueryError } from '@utils/query-error'
-import { Prisma } from '@prisma/client'
+import { protectApiRoute } from '@/lib/auth/authorization'
+import {
+  ApiResponse,
+  failedResponse,
+  successResponse,
+} from '@/lib/utils/responses'
+import { handleQueryError } from '@/lib/db/query-error'
 import { revalidatePath } from 'next/cache'
 
-export async function createForm(input: createInputs, path: string): Promise<Partial<ApiResponse>> {
-    const authRes = await autherization(path)
+export async function createForm(
+  input: createInputs,
+  path: string
+): Promise<Partial<ApiResponse>> {
+  const authRes = await protectApiRoute(path)
 
-    if (authRes.status === 'failed' || authRes.status === 'error') return authRes
+  if (authRes.status === 'failed' || authRes.status === 'error') return authRes
 
-    const user = authRes.data as { id: string }
-    try {
-        await prismaClient.form.create({
-            data: {
-                title: input.title,
-                blocks: input.blocks,
-                settings: input.settings || {},
-                description: input.description,
-                // foriegn key: we are directly inserting it as 'connect' is slower.
-                userId: user.id
-            }
-        }
-        )
+  const user = authRes.data as { id: string }
+  try {
+    await prismaClient.form.create({
+      data: {
+        title: input.title,
+        blocks: input.blocks,
+        settings: input.settings || {},
+        description: input.description,
+        // foriegn key: we are directly inserting it as 'connect' is slower.
+        userId: user.id,
+      },
+    })
 
-        // freah data would render.
-        revalidatePath('/dashboard', 'page')
+    // freah data would render.
+    revalidatePath('/dashboard', 'page')
 
-        return successResponse({
-            statusCode: 201,
-            path: path,
-            message: 'Form successfully created'
-        })
-
-    }
-    catch (err) {
-        return handleQueryError(err, path)
-    }
-
-
-
+    return successResponse({
+      statusCode: 201,
+      path: path,
+      message: 'Form successfully created',
+    })
+  } catch (err) {
+    return handleQueryError(err, path)
+  }
 }
 
 export async function updateForm(input: updateInputs, path: string) {
-    const authRes = await autherization(path)
+  const authRes = await protectApiRoute(path)
 
-    // we are using zod before we send the values inside this function.
-    // here one of them ( block or data ) will exist. 
-    if (authRes.status === 'failed' || authRes.status === 'error') return authRes
+  // we are using zod before we send the values inside this function.
+  // here one of them ( block or data ) will exist.
+  if (authRes.status === 'failed' || authRes.status === 'error') return authRes
 
-    const user = authRes.data as { id: string }
+  const user = authRes.data as { id: string }
 
-    // better way of finding the optional data.
-    const { formId, ...updates } = input
+  // better way of finding the optional data.
+  const { formId, ...updates } = input
 
-    try {
-        //Regular .update() can't check userId in the 'where' clause easily
-        const result = await prismaClient.form.updateMany({
-            data: updates,
-            where: {
-                id: formId,
-                // also check wether the user owns the data or not 
-                userId: user.id
-            }
-        })
+  try {
+    //Regular .update() can't check userId in the 'where' clause easily
+    const result = await prismaClient.form.updateMany({
+      data: updates,
+      where: {
+        id: formId,
+        // also check wether the user owns the data or not
+        userId: user.id,
+      },
+    })
 
-        // the above doesn't throw error.
-        // so throw the error by yourself so could get handeled by 'handleQueryError'.
-        if (result.count === 0) {
-            throw new Prisma.PrismaClientKnownRequestError(
-                'Record to update not found.',
-                { code: 'P2025', clientVersion: '5.x.x' }
-            )
-        }
-
-        // freah data would render.
-        revalidatePath('/dashboard', 'page')
-        revalidatePath(`/${formId}/edit`, 'page')
-
-        return successResponse({
-            statusCode: 200,
-            message: "Form updated successfully",
-            path: path
-        })
+    // the above doesn't throw error.
+    // so throw the error by yourself so could get handeled by 'handleQueryError'.
+    if (result.count === 0) {
+      return failedResponse({
+        statusCode: 404,
+        message: 'Record to update not found.',
+        path,
+      })
     }
 
-    catch (err) {
-        return handleQueryError(err, path)
-    }
+    // freah data would render.
+    revalidatePath('/dashboard', 'page')
+    revalidatePath(`/${formId}/edit`, 'page')
+
+    return successResponse({
+      statusCode: 200,
+      message: 'Form updated successfully',
+      path: path,
+    })
+  } catch (err) {
+    return handleQueryError(err, path)
+  }
 }
 
 export async function deleteForm(input: deleteInputs, path: string) {
-    const authRes = await autherization(path)
+  const authRes = await protectApiRoute(path)
 
-    if (authRes.status === 'failed' || authRes.status === 'error') return authRes
-    const user = authRes.data as { id: string }
+  if (authRes.status === 'failed' || authRes.status === 'error') return authRes
+  const user = authRes.data as { id: string }
 
-    try {
-        // Use deleteMany to ensure ownership
-        const result = await prismaClient.form.deleteMany({
-            where: {
-                id: input.formId,
-                userId: user.id
-            }
-        })
+  try {
+    // Use deleteMany to ensure ownership
+    const result = await prismaClient.form.deleteMany({
+      where: {
+        id: input.formId,
+        userId: user.id,
+      },
+    })
 
-        if (result.count === 0) {
-            // This mimics the Prisma error object structure
-            throw new Prisma.PrismaClientKnownRequestError(
-                'Record to update not found.',
-                { code: 'P2025', clientVersion: '5.x.x' } // Use your Prisma version
-            )
-        }
-        revalidatePath('/dashboard', 'page')
-        return successResponse({
-            statusCode: 200,
-            message: "Successfully deleted Form ",
-            path: path
-        })
+    if (result.count === 0) {
+      return failedResponse({
+        statusCode: 404,
+        message: 'Record to delete not found.',
+        path,
+      })
     }
-
-    catch (err) {
-        return handleQueryError(err, path)
-    }
+    revalidatePath('/dashboard', 'page')
+    return successResponse({
+      statusCode: 200,
+      message: 'Successfully deleted Form ',
+      path: path,
+    })
+  } catch (err) {
+    return handleQueryError(err, path)
+  }
 }
-
-
 
 interface AllFormsProps {
   userId: string
-  currentPath: string
 }
 
-export async function allForms({ userId, currentPath }: AllFormsProps) {
+export async function allForms({ userId }: AllFormsProps) {
   try {
     // 1. Validation: Ensure we actually have a userId
     if (!userId) {
       return {
         success: false,
         data: null,
-        message: "Unauthorized: User ID is required."
+        message: 'Unauthorized: User ID is required.',
       }
     }
 
@@ -158,7 +152,7 @@ export async function allForms({ userId, currentPath }: AllFormsProps) {
       orderBy: {
         updatedAt: 'desc',
       },
-      // Pro-tip: Only select the fields you need for the dashboard 
+      // Pro-tip: Only select the fields you need for the dashboard
       // to keep the payload light.
       select: {
         id: true,
@@ -166,13 +160,20 @@ export async function allForms({ userId, currentPath }: AllFormsProps) {
         published: true,
         updatedAt: true,
         _count: {
-          select: { submissions: true }
-        }
-      }
+          select: { submissions: true },
+        },
+      },
     })
 
     // Keep dashboard payload shape stable even though schema uses published/submissions.
-    const normalizedForms = forms.map((form) => ({
+    // rather importing 'types' of form use 'tyepof'
+    /* [] after 'typeof': is more about types of each element present in an object or array:
+        [number]: we can call each element using forms[0]........
+        so the type of each form is 'xyz'. 
+      when to apply [] after 'typeof':
+        if 'typeof xyz' is a object or array. 
+    */
+    const normalizedForms = forms.map((form: (typeof forms)[number]) => ({
       id: form.id,
       title: form.title,
       status: form.published ? 'published' : 'draft',
@@ -189,14 +190,13 @@ export async function allForms({ userId, currentPath }: AllFormsProps) {
       success: true,
       data: normalizedForms,
     }
-
   } catch (error) {
     console.error(`[ALL_FORMS_ERROR]:`, error)
-    
+
     return {
       success: false,
       data: null,
-      message: "Failed to fetch forms. Please try again later."
+      message: 'Failed to fetch forms. Please try again later.',
     }
   }
 }

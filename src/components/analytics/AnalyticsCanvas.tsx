@@ -23,7 +23,14 @@ import {
   Text,
 } from 'components'
 
-import { Download, Search, TrendingUp, Monitor, Smartphone, Tablet } from 'lucide-react'
+import {
+  Download,
+  Search,
+  TrendingUp,
+  Monitor,
+  Smartphone,
+  Tablet,
+} from 'lucide-react'
 
 export default function AnalyticsCanvas() {
   return (
@@ -99,7 +106,10 @@ export default function AnalyticsCanvas() {
       <Card>
         <CardContent className="p-6">
           <Stack gap="lg">
-            <Stack direction="horizontal" className="items-center justify-between">
+            <Stack
+              direction="horizontal"
+              className="items-center justify-between"
+            >
               <Text variant="h3" weight="semibold" color="primary">
                 Submission Volume
               </Text>
@@ -133,7 +143,10 @@ export default function AnalyticsCanvas() {
           </CardHeader>
           <CardContent>
             <Stack gap="md">
-              <Stack direction="horizontal" className="items-center justify-between">
+              <Stack
+                direction="horizontal"
+                className="items-center justify-between"
+              >
                 <Text variant="body" color="secondary">
                   Direct
                 </Text>
@@ -142,7 +155,10 @@ export default function AnalyticsCanvas() {
                 </Text>
               </Stack>
 
-              <Stack direction="horizontal" className="items-center justify-between">
+              <Stack
+                direction="horizontal"
+                className="items-center justify-between"
+              >
                 <Text variant="body" color="secondary">
                   Social
                 </Text>
@@ -151,7 +167,10 @@ export default function AnalyticsCanvas() {
                 </Text>
               </Stack>
 
-              <Stack direction="horizontal" className="items-center justify-between">
+              <Stack
+                direction="horizontal"
+                className="items-center justify-between"
+              >
                 <Text variant="body" color="secondary">
                   Referral
                 </Text>
@@ -180,7 +199,10 @@ export default function AnalyticsCanvas() {
               </Box>
 
               <Stack gap="sm" className="w-full">
-                <Stack direction="horizontal" className="items-center justify-between">
+                <Stack
+                  direction="horizontal"
+                  className="items-center justify-between"
+                >
                   <Stack direction="horizontal" className="items-center gap-2">
                     <Monitor size={16} />
                     <Text variant="body" color="secondary">
@@ -192,7 +214,10 @@ export default function AnalyticsCanvas() {
                   </Text>
                 </Stack>
 
-                <Stack direction="horizontal" className="items-center justify-between">
+                <Stack
+                  direction="horizontal"
+                  className="items-center justify-between"
+                >
                   <Stack direction="horizontal" className="items-center gap-2">
                     <Smartphone size={16} />
                     <Text variant="body" color="secondary">
@@ -204,7 +229,10 @@ export default function AnalyticsCanvas() {
                   </Text>
                 </Stack>
 
-                <Stack direction="horizontal" className="items-center justify-between">
+                <Stack
+                  direction="horizontal"
+                  className="items-center justify-between"
+                >
                   <Stack direction="horizontal" className="items-center gap-2">
                     <Tablet size={16} />
                     <Text variant="body" color="secondary">
@@ -223,13 +251,19 @@ export default function AnalyticsCanvas() {
 
       <Card className="p-0 overflow-hidden">
         <Box className="p-6 border-b border-border-default">
-          <Stack direction="horizontal" className="items-center justify-between gap-4">
+          <Stack
+            direction="horizontal"
+            className="items-center justify-between gap-4"
+          >
             <Text variant="h3" weight="semibold" color="primary">
               Top Performing Forms
             </Text>
 
             <Box className="w-full max-w-sm">
-              <Input placeholder="Search forms..." startIcon={<Search size={16} />} />
+              <Input
+                placeholder="Search forms..."
+                startIcon={<Search size={16} />}
+              />
             </Box>
           </Stack>
         </Box>
@@ -245,49 +279,47 @@ export default function AnalyticsCanvas() {
               </DataGridRow>
             </DataGridHeader>
 
-  
-              <DataGridRow>
-                <DataGridCell>Q3 Product Survey</DataGridCell>
-                <DataGridCell>42%</DataGridCell>
-                <DataGridCell>5,401</DataGridCell>
-                <DataGridCell>
-                  <Stack direction="horizontal" className="items-center gap-2">
-                    <TrendingUp size={14} className="text-status-success" />
-                    <Text variant="caption" color="success" weight="medium">
-                      Upward
-                    </Text>
-                  </Stack>
-                </DataGridCell>
-              </DataGridRow>
+            <DataGridRow>
+              <DataGridCell>Q3 Product Survey</DataGridCell>
+              <DataGridCell>42%</DataGridCell>
+              <DataGridCell>5,401</DataGridCell>
+              <DataGridCell>
+                <Stack direction="horizontal" className="items-center gap-2">
+                  <TrendingUp size={14} className="text-status-success" />
+                  <Text variant="caption" color="success" weight="medium">
+                    Upward
+                  </Text>
+                </Stack>
+              </DataGridCell>
+            </DataGridRow>
 
-              <DataGridRow>
-                <DataGridCell>Event RSVP</DataGridCell>
-                <DataGridCell>89%</DataGridCell>
-                <DataGridCell>1,200</DataGridCell>
-                <DataGridCell>
-                  <Stack direction="horizontal" className="items-center gap-2">
-                    <TrendingUp size={14} className="text-status-success" />
-                    <Text variant="caption" color="success" weight="medium">
-                      Strong
-                    </Text>
-                  </Stack>
-                </DataGridCell>
-              </DataGridRow>
+            <DataGridRow>
+              <DataGridCell>Event RSVP</DataGridCell>
+              <DataGridCell>89%</DataGridCell>
+              <DataGridCell>1,200</DataGridCell>
+              <DataGridCell>
+                <Stack direction="horizontal" className="items-center gap-2">
+                  <TrendingUp size={14} className="text-status-success" />
+                  <Text variant="caption" color="success" weight="medium">
+                    Strong
+                  </Text>
+                </Stack>
+              </DataGridCell>
+            </DataGridRow>
 
-              <DataGridRow>
-                <DataGridCell>Newsletter Signup</DataGridCell>
-                <DataGridCell>12%</DataGridCell>
-                <DataGridCell>9,842</DataGridCell>
-                <DataGridCell>
-                  <Stack direction="horizontal" className="items-center gap-2">
-                    <Box className="h-2 w-16 rounded-full bg-status-warning/40" />
-                    <Text variant="caption" color="warning" weight="medium">
-                      Flat
-                    </Text>
-                  </Stack>
-                </DataGridCell>
-              </DataGridRow>
-
+            <DataGridRow>
+              <DataGridCell>Newsletter Signup</DataGridCell>
+              <DataGridCell>12%</DataGridCell>
+              <DataGridCell>9,842</DataGridCell>
+              <DataGridCell>
+                <Stack direction="horizontal" className="items-center gap-2">
+                  <Box className="h-2 w-16 rounded-full bg-status-warning/40" />
+                  <Text variant="caption" color="warning" weight="medium">
+                    Flat
+                  </Text>
+                </Stack>
+              </DataGridCell>
+            </DataGridRow>
           </DataGrid>
         </CardContent>
       </Card>
