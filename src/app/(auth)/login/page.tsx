@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { Suspense, useCallback, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { loginHandler } from '@auth/service'
+import { loginHandler } from '@/action/authentication'
 
 /*
 The use of (folder-name):
@@ -26,7 +26,9 @@ import {
   Tooltip,
 } from 'components'
 
-export default function LoginPage() {
+function LoginPageContent() {
+  // in next js 'router' doesn't gets re-cerated even if we render the page again and again.
+  // so without worry we can include it in our dependency list(useCalback, useEffect, etc) too
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -36,6 +38,12 @@ export default function LoginPage() {
 
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+
+  /**
+   * form submission handler: for the Login view.
+   * Action: Prevents default submission, triggers the loginHandler, and securely normalizes the callback URL.
+   * Output: Redirects the user to their originally requested path (or default /forms), managing loading states.
+   */
 
   // Memoizing the handler to prevent re-creation on re-renders.
   // This is good practice for stable performance in larger component trees.
@@ -97,10 +105,16 @@ export default function LoginPage() {
     [email, password, isLoading, router, searchParams]
   )
 
+  /* 
+  why to include 'router' in dependency array: 
+    1.  if we are using a hook inside useEffect, usecalback etc:
+        then it's good practice to include it in dependency array
+    2.  so we can say our function gets more stable.
+  */
   const handleGoogleLogin = useCallback(() => {
     // removing the current path form the browsers stack so if we move back it doesn't reaches to tht login again.
     router.replace('/forms')
-  }, [])
+  }, [router])
 
   return (
     <Stack
@@ -286,7 +300,7 @@ export default function LoginPage() {
           className="mt-md bg-surface-raised/10 px-s rounded-small"
         >
           <Text variant="caption" color="secondary">
-            Don't have an account?
+            Don&apos;t have an account?
           </Text>
           <Button
             variant="ghost"
@@ -301,5 +315,14 @@ export default function LoginPage() {
         </Stack>
       </Stack>
     </Stack>
+  )
+}
+
+// Suspense: until react component is not ready render fallback
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageContent />
+    </Suspense>
   )
 }

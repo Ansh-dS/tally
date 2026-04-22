@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { tryRefreshToken } from '@auth/service' // Adjust import path if needed
+import { tryRefreshToken } from '@auth/session'
 
 /*
 why do we need the file: 

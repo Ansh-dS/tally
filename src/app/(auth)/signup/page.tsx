@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { signupHandler } from '@/lib/auth/service'
+import { signupHandler } from '@/action/authentication'
 import {
   Stack,
   Box,
@@ -20,9 +19,15 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  // STAFF FIX: State to capture and display browser validation messages
+  // FIX: State to capture and display browser validation messages
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+
+  /**
+   * form submission handler: for the Signup view.
+   * Action: Triggers the signupHandler and manages UI loading states to prevent double-submissions.
+   * Output: Redirects the user to the default /forms dashboard upon successful account creation.
+   */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault() // if we click agian, once we make make submit, nothing happens.
@@ -222,7 +227,7 @@ export default function SignupPage() {
             variant="ghost"
             size="sm"
             className="px-xs"
-            onClick={(e) => {
+            onClick={() => {
               router.push('./login')
             }}
             color="accent"
