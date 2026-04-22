@@ -11,21 +11,28 @@ why have we created POST Request(public) even if, we can use server actions?
 import { responseValidator } from '@schemas/response'
 import { prismaClient } from '@db/client'
 import { NextRequest, NextResponse } from 'next/server'
-import { successResponse } from '@utils/common'
-import { handleQueryError } from '@utils/query-error'
-import { failedResponse } from '@utils/common'
-// {params}: {params: {formId:string}} is the syntax to extract formId from the url.
+import { successResponse } from '@/lib/utils/responses'
+import { handleQueryError } from '@/lib/db/query-error'
+import { failedResponse } from '@/lib/utils/responses'
+// {params}: special syntax to extract formId from the url.
+/* 
+typeof params is an object which contains:
+  type definition of params as "formId:string " which is:
+    wrapped around "Promise<>"
+  params: Promise<{ formId: string}> 
+*/
 export async function POST(
   req: NextRequest,
-  { params }: { params: { formId: string } }
+  { params }: { params: Promise<{ formId: string }> }
 ) {
-  const path = `api/forms/${params.formId}/submit`
+  const { formId } = await params
+  const path = `api/forms/${formId}/submit`
 
   try {
     const body = await req.json()
     const validatorRes = await responseValidator({
       path: path,
-      formRes: { formId: params.formId, ...body },
+      formRes: { formId, ...body },
     })
 
     if (validatorRes.status !== 'success' || !validatorRes.data) {
@@ -43,7 +50,7 @@ export async function POST(
     const resData = await prismaClient.response.create({
       data: {
         data: validatorRes.data?.answers,
-        formId: params.formId,
+        formId,
       },
     })
 
