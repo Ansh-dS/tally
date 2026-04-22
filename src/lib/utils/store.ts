@@ -21,8 +21,16 @@ export interface FormBlock {
   required: boolean
   placeholder?: string
   options?: string[] // only for some blocks
-  data?: Record<string, any> // NEW: Handles custom settings for all 9 components (e.g., severity)
+  data?: {
+    placeholder?: string
+    buttonText?: string
+    severity?: string
+    defaultChecked?: boolean
+    [key: string]: string | boolean | number | undefined
+  }
 }
+
+export type UpdateBlockFn = (id: string, updates: Partial<FormBlock>) => void
 
 // Store Architecture
 interface FormState {
