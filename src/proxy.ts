@@ -31,11 +31,13 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/forms') || pathname.startsWith('/analytics')
 
   if (!pagesPath) {
+    console.log("inside pagesPath")
     return NextResponse.next()
   }
 
   // No refresh token means no way to recover -> login.
   if (!refreshToken) {
+    console.log("no refreah token")
     /* a. request.url: the absolute url the user want to access, https://example.com/xyz/do/don't
             b. new URL(): fetches base url form 'request.url' then add 'path:./login' at the last. 
         */
@@ -50,8 +52,10 @@ export async function proxy(request: NextRequest) {
 
   // Refresh exists but access is missing -> trigger rotation route immediately.
   if (!accessToken) {
+    console.log("no access token")
     const refreshUrl = new URL('/api/auth/refresh', request.url)
     refreshUrl.searchParams.set('callbackUrl', pathname)
+    console.log("after try refrsh in proxy:",refreshUrl )
     return NextResponse.redirect(refreshUrl)
   }
 
