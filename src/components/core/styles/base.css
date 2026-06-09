@@ -1,0 +1,192 @@
+/* ==========================================================================
+   🧱 THE BASE CANVAS ANCHOR
+   ========================================================================== */
+
+/* PROBLEM WE ARE SOLVING: "The Missing Height Canvas Leak"
+   If an individual page doesn't have much text or content, the page container 
+   shrinks, exposing the browser's default white bottom frame canvas underneath.
+   
+   RESOLUTION: 
+   We force the absolute base tags of the entire website (html and body) to 
+   always occupy 100% of the screen height and wear the active theme's background 
+   color. This means individual page files no longer need 'min-h-screen'.
+*/
+html, 
+body {
+  min-height: 100vh !important;
+  background-color: var(--colors-background-primary) !important;
+  color: var(--colors-text-primary) !important;
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   🎛️ CUSTOM UNIVERSAL SCROLLBAR ENGINE
+   ========================================================================== */
+
+/* 1. MOUSE-ONLY PROTECTION
+   We only apply these rules to devices that use a mouse or trackpad. 
+   This prevents us from breaking the default hidden touch-scrolling 
+   behaviors on mobile phones and tablets.
+*/
+@media (any-hover: hover) {
+
+  /* THE SCROLLBAR CANVAS
+     Sets the overall thickness of the scrollbars. This makes vertical 
+     scrollbars on the right edge and horizontal scrollbars at the bottom 
+     exactly 10 pixels wide/tall.
+  */
+  ::-webkit-scrollbar {
+    width: 0.625rem !important;
+    height: 0.625rem !important;
+  }
+
+  /* THE RUNWAY (TRACK)
+     This is the path that the sliding handle moves along. 
+     We force it to be completely see-through (transparent) so it automatically 
+     blends into cards, sidebars, or main pages without causing color clashes.
+  */
+  ::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  /* THE DRAGGABLE HANDLE (THUMB)
+     This is the actual pill shape that the user grabs to scroll.
+     
+     DESIGN TRICK: Browsers don't allow standard margin/padding on scrollbars. 
+     To make the handle look like it is beautifully floating inside the container, 
+     we give it a 3px transparent border, and use 'background-clip' to force the 
+     handle color to stay inside that invisible border.
+  */
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--colors-border-strong) !important;
+    border-radius: 1.25rem !important;
+
+    /* Keep border as px */
+    border: 3px solid transparent !important;
+    background-clip: content-box !important;
+  }
+
+  /* THE HOVER GLOW
+     When the user's mouse hovers directly over the sliding handle, it changes 
+     to your primary theme color to signal that it's active and ready to be dragged.
+  */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--colors-primary-500) !important;
+  }
+
+  /* 2. ARROW KILLER 
+     Operating systems like Windows often force blocky up/down navigation arrows 
+     at the ends of the scroll track. They look outdated, so we completely hide 
+     them and shrink their footprint to zero.
+  */
+  ::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    -webkit-appearance: none !important;  /* Bypasses system-level styling overrides */
+  }
+
+  /* CORNER INTERSECTION CLEANER
+     If a page has both horizontal and vertical scrolling active at the same time, 
+     they crash together at the bottom right corner. This completely clears out 
+     and hides that messy intersection box.
+  */
+  ::-webkit-scrollbar-corner,
+  ::-webkit-resizer {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+}
+
+/* ==========================================================================
+   🦊 FIREFOX TRANSLATION LAYER
+   ========================================================================== */
+
+/* 3. STANDARD ENGINE (Firefox)
+   Firefox does not read the 'webkit' rules used above. This section serves 
+   as a backup translator. If the browser identifies itself as Firefox, it 
+   safely skips the code above and renders a clean, slim scrollbar using 
+   the exact same theme border colors.
+*/
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--colors-border-strong) transparent !important;
+  }
+}
+
+/* ==========================================================================
+   🎨 PREMIUM THEME SWITCHING ENGINE
+   ========================================================================== */
+
+/* PROBLEM 1 FACED: "The Ghostly Color Blur"
+  When moving between themes, the browser naturally tried to mix colors mid-way. 
+  This made deep blue and bright green backgrounds mix into a muddy, glitchy grey.
+  
+  RESOLUTION: 
+  We tell the browser to stop mixing the colors. Instead, we hold the old look 
+  perfectly solid in the background and gracefully slide the new look right on top of it.
+*/
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+  animation: theme-smooth-fade 0.35s ease-in-out forwards;
+}
+
+@keyframes theme-smooth-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ==========================================================================
+   ⚡ THE FLASH & GLITCH SUPPRESSOR
+   ========================================================================== */
+
+/* PROBLEM 2 FACED: "The Data List Blinking / Flashing Error"
+  Individual pieces of the page (like lists and buttons) had their own slower 
+  color animations. When the theme changed, they couldn't keep up with the overall 
+  speed of the page, causing them to flash broken mid-way states.
+  
+  PROBLEM 3 FACED: "The White Edge Frame Bleed"
+  When using large scaling animations, the page shrunk inward, accidentally exposing 
+  the browser's raw white background underneath at the outer edges of the screen.
+
+  RESOLUTION: 
+  We created a temporary 'freeze' class. The millisecond a user clicks to toggle 
+  the theme, all independent element animations are completely frozen. This forces 
+  everything to instantly adapt to the final colors, allowing a clean snapshot to be 
+  taken without any visual distortion, edge lines, or list flashes.
+*/
+
+.theme-transitioning,
+.theme-transitioning * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ==========================================================================
+   ♿ ACCESSIBILITY PREFERENCES
+   ========================================================================== */
+
+/* Turn off all animations instantly if the user has requested reduced motion on their device */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}

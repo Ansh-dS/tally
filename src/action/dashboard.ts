@@ -36,8 +36,9 @@ export async function getAuthorizedUser(
 
         3. in login or other page we first need to decode the path using 'decodeURIComponent.
     */
-
+  console.log('reached getAuthorizedUser')
   // Refresh path: cookie mutation must happen in a Route Handler.
+  // As it contains 'tryRefreshToken'
   if (auth.status === 'error') {
     redirect(`/api/auth/refresh?callbackUrl=${encodeURIComponent(currentPath)}`)
   }
@@ -46,6 +47,7 @@ export async function getAuthorizedUser(
     redirect(`/login?callbackUrl=${encodeURIComponent(currentPath)}`)
   }
 
+  console.log(auth.data)
   // Return the verified user so the page can use it
   const user = auth.data as AuthorizedUser
   return user

@@ -203,14 +203,20 @@ export async function tryRefreshToken(
       },
     })
 
-    if (
-      !session ||
-      session.userId !== userId ||
-      session.expiresAt.getTime() <= Date.now()
-    ) {
-      if (session?.expiresAt && session.expiresAt.getTime() <= Date.now()) {
-        await deleteSessionByToken(refreshToken)
-      }
+    if (!session) {
+      // Can happen during concurrent refresh requests when another request
+      // already rotated this token. Avoid clearing cookies here to prevent
+      // clobbering a fresh Set-Cookie from the winning request.
+      return { status: 'failed', error: 'session_not_found' }
+    }
+
+    if (session.userId !== userId) {
+      await clearAuthCookies()
+      return { status: 'failed', error: 'session_not_found' }
+    }
+
+    if (session.expiresAt.getTime() <= Date.now()) {
+      await deleteSessionByToken(refreshToken)
       await clearAuthCookies()
       return { status: 'failed', error: 'session_not_found' }
     }
@@ -240,7 +246,8 @@ export async function tryRefreshToken(
     return { status: 'success', data: { userId: session.user.id } }
   } catch (err) {
     console.error('tryRefreshToken failed:', err)
-    await clearAuthCookies()
+    // Don't clear cookies on transient infra/db failures.
+    // A concurrent refresh may already have rotated tokens successfully.
     return { status: 'failed', error: 'session_not_found' }
   }
 }

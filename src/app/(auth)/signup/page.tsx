@@ -3,16 +3,14 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signupHandler } from '@/action/authentication'
-import {
-  Stack,
-  Box,
-  Card,
-  Text,
-  Input,
-  Button,
-  SocialButton,
-  Tooltip,
-} from 'components'
+import { Stack } from '@primitives/Stack/Stack'
+import { Box } from '@primitives/Box/Box'
+import { Card } from '@primitives/Card/Card'
+import { Text } from '@primitives/Text/Text'
+import { Input } from '@primitives/Input/Input'
+import { Button } from '@primitives/Button/Button'
+import { SocialButton } from '@primitives/SocialButton/SocialButton'
+import { Tooltip } from '@primitives/Tooltip/Tooltip'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -228,7 +226,7 @@ export default function SignupPage() {
             size="sm"
             className="px-xs"
             onClick={() => {
-              router.push('./login')
+              router.replace('./login')
             }}
             color="accent"
           >

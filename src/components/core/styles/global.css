@@ -1,0 +1,182 @@
+@import 'tailwindcss';
+
+
+@theme {
+  /* ==============================================
+     2. COLOR MAPPING
+     ============================================== */
+
+  /* SURFACES: 'bg' prefix  */
+  --color-surface-base: var(--colors-background-primary); /* main canvas */
+  --color-surface-sunken: var( --colors-background-secondary); /*creates a "step down" effect as compared to primary: example header footer.*/
+  --color-surface-raised: var(--colors-background-tertiary); /*elements surface(big area not small background) that need grab attention wrt base surface or signify interactivity*/
+  --color-surface-overlay: var(--colors-background-muted); /* components that temporarily placed on top of all other content: popover etc etc. */
+
+  /* ACTION: 'bg'*/
+  --color-action-primary: var(--colors-primary-500); /*default state of interactive elements*/
+  --color-action-primary-hover: var(--colors-primary-600);
+  --color-action-primary-pressed: var(--colors-primary-700);
+
+  --color-action-secondary: var(--colors-background-primary);
+  --color-action-secondary-hover: var(--colors-background-secondary);
+  --color-action-secondary-pressed: var(--colors-neutral-200); /* Updated to neutral */
+  --color-action-accent: var(--colors-accent-500); /* highest attention to draw: in interactive elements */
+
+
+/* STATUS (Feedback & System States)
+     Prefix: 'text-status-*' or 'bg-status-*'
+     Usage: Use these for Alerts, Badges, Toast notifications, and Form validations. */
+  --color-status-success: var(--colors-state-success); /* Usage: Success icons, checkmarks, solid green badges */
+  --color-status-warning: var(--colors-state-warning); /* Usage: Warning icons, yield signs */
+  --color-status-danger: var(--colors-state-error); /* Usage: Error icons, destructive 'Delete' buttons */
+  --color-status-info: var(--colors-state-info); /* Usage: Information icons, tooltips */
+
+  /* bg-* */
+  --color-status-info-subtle: var(--colors-state-infoSubtle); /* Usage: Backgrounds for Info Alerts */
+  --color-status-danger-subtle: var(--colors-state-errorSubtle); /* Usage: Backgrounds for Error Alerts and soft badges */
+  --color-status-warning-subtle: var(--colors-state-warningSubtle); /* Usage: Backgrounds for Warning Alerts */
+  --color-status-success-subtle: var(--colors-state-successSubtle); /* Usage: Backgrounds for Success Alerts and soft badges */
+
+
+  /* bg-* */
+
+  /* Usage: The "Active/Selected" state for SidebarItems, Navigation Tabs, or Selected Table Rows. 
+     Matches your 8% (Light) / 12% (Dark) brand alpha logic. */
+  --color-action-primary-subtle: var(--colors-action-primarySubtle); 
+  
+  /* Usage: Selected state for non-brand elements, like a secondary navigation menu 
+     or a "Muted" filter button in Tally. */
+  --color-action-secondary-subtle: var(--colors-action-secondarySubtle);
+
+  /* Usage: The "Hover" state for Ghost buttons or Sidebar items that use the primary brand color. 
+     Slightly more opaque than Subtle to give immediate feedback. */
+  --color-action-primary-hover-subtle: var(--colors-action-primaryHover);
+
+  /* Usage: The standard background for "Ghost" or "Transparent" buttons on hover. 
+     Very light (4-6% alpha) to maintain a clean, minimal look. */
+  --color-action-ghost-hover: var(--colors-action-ghostHover);
+
+
+
+
+  /* BORDERS: 'border'  */
+  --color-border-default: var(--colors-border-default);
+  --color-border-focused: var(--colors-border-focus);
+  --color-border-strong: var(--colors-border-strong);
+  /* Updated to use new focus token */
+
+  /* Text (Foregrounds) */
+  --color-fg-primary: var(--colors-text-primary); /**/
+  --color-fg-secondary: var(
+    --colors-text-secondary
+  ); /*Creates a visual "step down" from primary text or the that the user doesn't need to read first: for "Meta-data" or supporting information*/
+  --color-fg-brand: var(
+    --colors-primary-500
+  ); /* Anything which is depicts our brands identity. */
+  --color-fg-accent: var(
+    --colors-accent-500
+  ); /*immediate notice: an active tab could also be a part. */
+  --color-fg-inverted: var(
+    --colors-text-inverted
+  ); /* choose when other colors for text aren't that readable*/
+  --color-fg-disabled: var(--colors-text-muted);
+
+  /* Raw Palettes (Updated to Neutral) */
+  --color-neutral-50: var(--colors-neutral-50);
+  --color-neutral-100: var(--colors-neutral-100);
+  --color-neutral-200: var(--colors-neutral-200);
+  --color-neutral-300: var(--colors-neutral-300);
+  --color-neutral-400: var(--colors-neutral-400);
+  --color-neutral-500: var(--colors-neutral-500);
+  --color-neutral-600: var(--colors-neutral-600);
+  --color-neutral-700: var(--colors-neutral-700);
+  --color-neutral-900: var(--colors-neutral-900);
+
+  /* ==============================================
+     3. TYPOGRAPHY
+     ============================================== */
+
+  /* Font Families: --font-* creates font-*  */
+  --font-base: var(--typography-fontFamily);
+  --font-document: var(--typography-fontFamilySerif);
+  --font-mono: var(--typography-fontFamilyMono);
+
+  /* Font Sizes: --text-* creates text-* */
+  --text-caption: var(--typography-fontSize-xs);
+  --text-label: var(--typography-fontSize-sm);
+  --text-body: var(--typography-fontSize-md);
+  --text-subheader: var(--typography-fontSize-lg);
+  --text-h3: var(--typography-fontSize-xl);
+  --text-h2: var(--typography-fontSize-2xl);
+  --text-h1: var(--typography-fontSize-4xl);
+  --text-display: var(--typography-fontSize-5xl);
+
+  /* Line Heights: --leading-* creates leading-* */
+  --leading-heading: var(--typography-lineHeight-tight);
+  --leading-ui: var(--typography-lineHeight-normal);
+  --leading-body: var(--typography-lineHeight-relaxed);
+
+  /* Font Weights: --font-weight-* creates font-* */
+  --font-weight-normal: var(--typography-fontWeight-normal);
+  --font-weight-medium: var(--typography-fontWeight-medium);
+  --font-weight-semibold: var(--typography-fontWeight-semibold);
+  --font-weight-bold: var(--typography-fontWeight-bold);
+
+  /* Letter Spacing (Tracking) - Newly Added */
+  --tracking-tighter: var(--typography-letterSpacing-tighter);
+  --tracking-tight: var(--typography-letterSpacing-tight);
+  --tracking-normal: var(--typography-letterSpacing-normal);
+  --tracking-wide: var(--typography-letterSpacing-wide);
+  --tracking-widest: var(--typography-letterSpacing-widest);
+
+  /* ==============================================
+     4. SPACING & LAYOUT
+     ============================================== */
+
+  /* Spacing Scale:  --spacing-* creates p-*, m-*, w-*, h-*, gap-* */
+  --spacing-xs: var(--spacing-xs);
+  --spacing-s: var(--spacing-sm);
+  --spacing-m: var(--spacing-md);
+  --spacing-l: var(--spacing-lg);
+  --spacing-xl: var(--spacing-xl);
+  --spacing-2xl: var(--spacing-2xl);
+  --spacing-3xl: var(--spacing-3xl);
+
+  /* Border Radii: --radius-* creates rounded-* */
+  --radius-none: 0;
+  --radius-small: var(--borderRadius-sm);
+  --radius-medium: var(--borderRadius-base);
+  --radius-large: var(--borderRadius-lg);
+  --radius-pill: var(--borderRadius-full);
+
+  /* Animations: --animate-* creates animate-* */
+  --animate-duration-fast: var(--animation-fast);
+  --animate-duration-normal: var(--animation-normal);
+  --animate-duration-slow: var(--animation-slow);
+
+  /* Shadows (Depth): --shadow-* creates shadow-* */
+  --shadow-raised: var(--shadows-sm);
+  --shadow-overlay: var(--shadows-md);
+  --shadow-modal: var(--shadows-lg);
+  --shadow-popout: var(--shadows-xl); /* Newly added */
+  --shadow-inset: var(--shadows-inner); /* Newly added */
+
+  /* ==============================================
+     5. BREAKPOINTS & LAYOUT
+     ============================================== */
+
+  /* Breakpoints: --breakpoint-* creates sm:, md:, lg:, etc. */
+  /* we have to insert the below doesn't accept the variables - This fixes md:flex  */
+  --breakpoint-sm: 40rem; /* 640px */
+  --breakpoint-md: 48rem; /* 768px */
+  --breakpoint-lg: 64rem; /* 1024px */
+  --breakpoint-xl: 80rem; /* 1280px */
+  --breakpoint-2xl: 96rem; /* 1536px */
+
+  --z-index-base: var(--zIndices-base);       /* Base content layer (lowest) */
+  --z-index-nav: var(--zIndices-nav);         /* Navigation elements like sidebar/header */
+  --z-index-overlay: var(--zIndices-overlay); /* Backdrop overlays above nav */
+  --z-index-popover: var(--zIndices-popover); /* Tooltips, dropdowns above overlays */
+  --z-index-modal: var(--zIndices-modal);     /* Modals/dialogs above popovers */
+  --z-index-toast: var(--zIndices-toast);     /* Toast notifications (highest) */
+}

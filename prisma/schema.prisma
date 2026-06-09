@@ -75,17 +75,18 @@ model Session{
 
 // Form data created by a user  
 model Form{ 
-  id          String      @id @default(cuid())
+  id          String      @id @default(cuid())  // removed "publishedUrl" and only storing the fromId(slug). we are safe even if domain name changes.
   title         String 
   description   String? 
   blocks        Json                        // what field a "x" user contains?
   settings      Json                        // Additional configuration
   published     Boolean     @default(false) // can we see form or not as if we editing then users can't see this form. 
-  publishedUrl  String?     @unique         // the place we are publishing form 
   userId        String
+  password       String?                    // Hashed password: should be filled by every person before filling the form. we don't data from everybody (organizations). 
+  expiresAt      DateTime?                 // For the "Close on specific date" feature
 
   // Relations
-  author User @relation(fields: [userId] , references: [id], onDelete:Cascade )
+  author User @relation(fields: [userId] , references: [id], onDelete:Cascade ) // Whenever a User record is deleted, all related records in the table 
   submissions   Response[]
   integrations    FormIntegration[]
 
@@ -108,9 +109,11 @@ model Response{
   data          Json
   summary       String?                             //AI-generated summary 
   score         Int?                                //Lead quality score out of 100. 
-  delivered      Boolean     @default(false)        //Has webhook been sent to integrations. 
+  delivered     Boolean     @default(false)         //Has webhook been sent to integrations. 
   deliveredAt   DateTime?                            // when delivered? 
   formId        String           
+  ipAddress     String?                             // To prevent spam/duplicate submissions.
+  userAgent     String?                             // Crucial for "Results" insights: To see if people are filling out your forms on Mobile vs. Desktop.
 
   // Relations
   form Form @relation(fields:[formId], references: [id],onDelete: Cascade)
@@ -163,7 +166,7 @@ model FormIntegration {
   formId          String
   integrationId   String
   fieldMapping    Json      @default("{}")      // This json maps the form fields to integration fields.
-  enabled         Boolean   @default(true)      // Can we send the data from form to integratin 
+  enabled         Boolean   @default(true)      // Can we send the data from form to integratin.
 
   // Relations
   form Form @relation(fields:[formId], references:[id],onDelete: Cascade) 

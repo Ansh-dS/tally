@@ -15,16 +15,14 @@ The use of (folder-name):
     2. boldness isn't contribute to visual heirarchy that much but size do. 
     3. we are grouping the similar things using 'Stack' like 
 */
-import {
-  Box,
-  Button,
-  Card,
-  Input,
-  SocialButton,
-  Stack,
-  Text,
-  Tooltip,
-} from 'components'
+import { Box } from '@primitives/Box/Box'
+import { Button } from '@primitives/Button/Button'
+import { Card } from '@primitives/Card/Card'
+import { Input } from '@primitives/Input/Input'
+import { SocialButton } from '@primitives/SocialButton/SocialButton'
+import { Stack } from '@primitives/Stack/Stack'
+import { Text } from '@primitives/Text/Text'
+import { Tooltip } from '@primitives/Tooltip/Tooltip'
 
 function LoginPageContent() {
   // in next js 'router' doesn't gets re-cerated even if we render the page again and again.
