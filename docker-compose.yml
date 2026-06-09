@@ -4,18 +4,36 @@
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: tally-postgres
-    restart: no # Only starts when YOU manually type docker-compose up
+    restart: 'no' # Only starts when YOU manually type docker-compose up
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: ${POSTGRES_USER} # ${xyz}: env.process.POSTGRES_USER
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: tallydb
     ports:
       - '55432:5432' # Map host 55432 to container 5432 (Postgres default)
-    # volumes: you can stop the container, restart your computer, or even update the Postgres image, and your forms/users won't be deleted.
+    # volumes: you can stop the container, restart your computer, or even update the Postgres image, and your forms/users(data) won't be deleted.
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tally-network
+  redis:
+    image: redis:7-alpine
+    container_name: tally-redis
+    restart: 'no' # but for production use always. no means: don't start the server until use "docker compose up" or manually start the server.
+    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}']
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data # Official defined by the image itself.
+    networks:
+      - tally-network
 
 volumes:
   postgres_data:
+  redis_data:
+
+networks:
+  tally-network: # only tally inside containers can able to see each other.
+    driver: bridge

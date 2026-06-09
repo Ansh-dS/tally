@@ -21,12 +21,14 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@actions/*": ["./src/actions/*"],
-      "@components/*": ["./src/components/*"],
+      "@actions/*": ["./src/action/*"],
+      "@containers/*": ["./src/containers/*"],
       "@auth/*": ["./src/lib/auth/*"],
       "@db/*": ["./src/lib/db/*"],
       "@schemas/*": ["./src/lib/schemas/*"],
-      "@utils/*": ["./src/lib/utils/*"]
+      "@utils/*": ["./src/lib/utils/*"],
+      "@redis/*": ["./src/lib/redis/*"],
+      "@primitives/*": ["./src/components/ui/*"]
     }
   },
   "include": [
