@@ -19,14 +19,25 @@ export interface FormBlock {
   type: BlockType
   label: string
   required: boolean
-  placeholder?: string
-  options?: string[] // only for some blocks
   data?: {
     placeholder?: string
     buttonText?: string
     severity?: string
+    options?: string[] // only for some blocks
     defaultChecked?: boolean
-    [key: string]: string | boolean | number | undefined
+    [key: string]: string | boolean | number | string[] | undefined // defines what the the type of key and value we can include inside data.
+  }
+}
+
+export interface FormHeader {
+  title?: string
+  description?: string
+}
+
+export interface OtherSettings {
+  saveButton: {
+    isLoading: boolean
+    setLoading: (loading: boolean) => void
   }
 }
 
@@ -35,7 +46,7 @@ export type UpdateBlockFn = (id: string, updates: Partial<FormBlock>) => void
 // Store Architecture
 interface FormState {
   blocks: FormBlock[]
-
+  header: FormHeader
   // O(1) Array Operations
   addBlock: (type: BlockType, label: string) => void
   removeBlock: (id: string) => void
@@ -44,15 +55,35 @@ interface FormState {
   // O(n) Array Traversals
   reorderBlocks: (sourceIndex: number, targetIndex: number) => void
   setBlocks: (blocks: FormBlock[]) => void
+  setTitle: (updatedTitle: string) => void
+  setDescrition: (updatedDescription: string) => void
 }
 
+// "& ": combines form state and other UI settings.
+type storeData = FormState & OtherSettings
+
 //  Initializing Global Store
-export const useFormStore = create<FormState>((set) => ({
+export const useStore = create<storeData>((set) => ({
   // Initial Data Structure
   blocks: [],
-
+  header: {
+    title: '',
+    description: '',
+  },
+  saveButton: {
+    isLoading: false,
+    setLoading: (loading) => {
+      set((state) => ({
+        saveButton: {
+          ...state.saveButton,
+          isLoading: loading,
+        },
+      }))
+    },
+  },
   // we are saying our data would be stored in an array of json where each json have the below type.
   addBlock: (type, label) => {
+    // state: contains all the outputs(storeData)
     set((state) => {
       const newBlock: FormBlock = {
         id: crypto.randomUUID(), // Generates a secure, DB-ready unique ID
@@ -64,7 +95,7 @@ export const useFormStore = create<FormState>((set) => ({
 
       // we need options if having below type.
       if (['dropdown', 'checkbox', 'radio', 'select'].includes(type)) {
-        newBlock.options = ['Option 1', 'Option 2']
+        if (newBlock.data) newBlock.data.options = ['Option 1', 'Option 2']
       }
 
       // Push to the end of the array
@@ -78,7 +109,8 @@ export const useFormStore = create<FormState>((set) => ({
       blocks: state.blocks.filter((block) => block.id !== id),
     })),
 
-  // Merges new settings (like making a field required) into an existing node
+  // Merges new settings (like making a field required) into an existing node:
+  // we are re-writting the inside data of that block again where the id matches.
   updateBlock: (id, updates) =>
     set((state) => ({
       blocks: state.blocks.map((block) =>
@@ -109,5 +141,20 @@ export const useFormStore = create<FormState>((set) => ({
     }),
 
   // if we have data in database, which we are fetching and storing in blocks/storage of zustand.
-  setBlocks: (blocks) => set({ blocks }),
+  setBlocks: (blocks) => set((state) => ({ blocks: blocks })),
+  setTitle: (updatedTitle) =>
+    set((state) => ({
+      header: { ...state.header, title: updatedTitle },
+    })),
+
+  /*
+    we are just changing the value of outputs:
+      like: 
+        state storeData contains "header" as an output(if hover):
+          we wrote it and provide new values.  
+  */
+  setDescrition: (updatedDescription) =>
+    set((state) => ({
+      header: { ...state.header, description: updatedDescription },
+    })),
 }))

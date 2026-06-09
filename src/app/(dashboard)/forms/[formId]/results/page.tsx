@@ -1,8 +1,14 @@
-'use client'
+'use server'
 
-import EditorLayout from '@/components/editor/EditorLayout'
-import EditorResultPage from '@/components/editor/ResultPage'
+import EditorLayout from '@/containers/editor/EditorLayout'
+import EditorResultPage from '@/containers/editor/ResultPage'
 
-export default function ResultsPage() {
-  return <EditorLayout activeTab="results" children=<EditorResultPage /> />
+export default async function ResultsPage({ params }: { params: Promise<{ formId: string }> }) {
+  const { formId } = await params
+
+  return (
+    <EditorLayout activeTab="results" formId={formId}>
+      <EditorResultPage />
+    </EditorLayout>
+  )
 }

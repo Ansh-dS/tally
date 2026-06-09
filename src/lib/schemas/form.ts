@@ -1,22 +1,41 @@
 import * as z from 'zod'
 import { errorResponse, successResponse } from '@utils/responses'
 
+const blockDataSchema = z
+  .object({
+    placeholder: z.string().optional(),
+    buttonText: z.string().optional(),
+    severity: z.string().optional(),
+    options: z.array(z.string()).optional(),
+    defaultChecked: z.boolean().optional(),
+  })
+  .catchall(z.union([z.string(), z.boolean(), z.number(), z.array(z.string())]))
+
 const blockSchema = z.array(
   z.object({
     id: z.string(),
     label: z.string(),
-    type: z.enum(['input', 'email', 'textArea', 'dropdown', 'payment']),
-    options: z.array(z.string()).optional(),
+    type: z.enum([
+      'input',
+      'email',
+      'textarea',
+      'textArea',
+      'radio',
+      'checkbox',
+      'select',
+      'switch',
+      'Button',
+      'Alert',
+    ]),
     required: z.boolean().optional().default(false),
+    data: blockDataSchema.optional(),
   })
 )
 
 const settingsSchema = z
   .object({
-    theme: z.enum(['light', 'dark', 'system']).optional(),
     limitResponses: z.number().optional(),
     closed: z.boolean().optional(),
-    // ........
   })
   .optional()
 
@@ -28,15 +47,12 @@ const settingsSchema = z
 // labels: you actual data.
 // id: to uniquelly identify a block.
 // dont' include userId for security.
-const formSchema = z.object({
+export const formSchema = z.object({
   title: z.string().min(1),
   blocks: blockSchema,
-  //optionals
-  required: z.boolean().optional().default(false),
   description: z.string().optional(),
   published: z.boolean().optional(),
   settings: settingsSchema,
-  publishedUrl: z.string().optional(),
 })
 
 export const deleteSchema = z.object({
@@ -47,11 +63,9 @@ export const updateSchema = formSchema
   .pick({
     title: true,
     blocks: true,
-    required: true,
     description: true,
     published: true,
     settings: true, // can update settings
-    publishedUrl: true, // can update URL
   })
   .partial()
   .extend({
@@ -64,8 +78,7 @@ export const updateSchema = formSchema
         c.title !== undefined ||
         c.description !== undefined ||
         c.published !== undefined ||
-        c.settings !== undefined ||
-        c.publishedUrl !== undefined
+        c.settings !== undefined
       )
     },
     {
@@ -85,7 +98,7 @@ export function formValidator<T>(
     return errorResponse({
       statusCode: 400,
       message: 'Invalid data format',
-      error: res.error.format, // .format() is cleaner for frontend
+      error: res.error.format(), // .format() is cleaner for frontend
       path: path,
     })
 

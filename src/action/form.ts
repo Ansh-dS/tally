@@ -1,3 +1,4 @@
+'use server'
 // central data for owner to modify data of form.
 // we can create a single form having all:
 // create, delete etc etc logic because:
@@ -6,6 +7,8 @@
 import { createInputs, updateInputs, deleteInputs } from '@schemas/form'
 import { prismaClient } from '@db/client'
 import { protectApiRoute } from '@/lib/auth/authorization'
+import type { AuthorizedUser } from '@actions/dashboard'
+import { formValidator, formSchema } from '@schemas/form'
 import {
   ApiResponse,
   failedResponse,
@@ -22,14 +25,25 @@ export async function createForm(
 
   if (authRes.status === 'failed' || authRes.status === 'error') return authRes
 
-  const user = authRes.data as { id: string }
+  const user = authRes.data as AuthorizedUser
+
+  // Check if the input actually matches the schema
+  const validation = formValidator(formSchema, input, path)
+
+  // If it fails
+  if (validation.status === 'error' || validation.status === 'failed') {
+    return validation
+  }
+
+  const safeInput = validation.data as createInputs
+
   try {
     await prismaClient.form.create({
       data: {
-        title: input.title,
-        blocks: input.blocks,
-        settings: input.settings || {},
-        description: input.description,
+        title: safeInput.title,
+        blocks: safeInput.blocks,
+        settings: safeInput.settings || {},
+        description: safeInput.description,
         // foriegn key: we are directly inserting it as 'connect' is slower.
         userId: user.id,
       },
@@ -55,7 +69,7 @@ export async function updateForm(input: updateInputs, path: string) {
   // here one of them ( block or data ) will exist.
   if (authRes.status === 'failed' || authRes.status === 'error') return authRes
 
-  const user = authRes.data as { id: string }
+  const user = authRes.data as AuthorizedUser
 
   // better way of finding the optional data.
   const { formId, ...updates } = input
@@ -99,7 +113,7 @@ export async function deleteForm(input: deleteInputs, path: string) {
   const authRes = await protectApiRoute(path)
 
   if (authRes.status === 'failed' || authRes.status === 'error') return authRes
-  const user = authRes.data as { id: string }
+  const user = authRes.data as AuthorizedUser
 
   try {
     // Use deleteMany to ensure ownership
@@ -117,7 +131,7 @@ export async function deleteForm(input: deleteInputs, path: string) {
         path,
       })
     }
-    revalidatePath('/dashboard', 'page')
+    revalidatePath('/forms', 'page')
     return successResponse({
       statusCode: 200,
       message: 'Successfully deleted Form ',
@@ -176,7 +190,7 @@ export async function allForms({ userId }: AllFormsProps) {
     const normalizedForms = forms.map((form: (typeof forms)[number]) => ({
       id: form.id,
       title: form.title,
-      status: form.published ? 'published' : 'draft',
+      published: form.published,
       updatedAt: form.updatedAt,
       _count: {
         responses: form._count.submissions,

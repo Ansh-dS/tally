@@ -1,8 +1,8 @@
 'use server'
 
 import { getDashboardData } from '@utils/data-fetchers'
-import DashboardLayout from '@components/layouts/DashboardLayout'
-import AnalyticsCanvas from '@components/analytics/AnalyticsCanvas'
+import DashboardLayout from '@/containers/layouts/DashboardLayout'
+import AnalyticsCanvas from '@/containers/analytics/AnalyticsCanvas'
 export default async function FormsDashboardPage() {
   await getDashboardData('./forms')
 
