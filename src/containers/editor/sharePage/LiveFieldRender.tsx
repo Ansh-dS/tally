@@ -10,13 +10,35 @@ import { Switch } from '@primitives/Switch/Switch'
 import { Alert } from '@primitives/Alert/Alert'
 import { TextArea } from '@primitives/TextArea/TextArea'
 import { FormBlock } from '@utils/store'
+import type { FieldValues, UseFormRegister } from 'react-hook-form'
 
-export function LiveFieldRenderer({ block, disabled = false }: { block: FormBlock; disabled?: boolean }) {
+// use registor here:
+export function LiveFieldRenderer({
+  block,
+  disabled = false,
+  questionNumber,
+  register,
+}: {
+  block: FormBlock
+  disabled?: boolean
+  questionNumber: number
+  register?: UseFormRegister<FieldValues>
+}) {
   const { type, label, required, data } = block
 
+  function registerAnswers() {
+    if (!register) return {}
+
+    return { ...register(`q${questionNumber}`, { required }) }
+  }
+
   const fieldLabel = (
-    <Stack direction="horizontal" align="start" className="mb-s bg-transparent mt-1">
-      <Text variant="subheader" weight="bold" color="primary" >
+    <Stack
+      direction="horizontal"
+      align="start"
+      className="mb-s bg-transparent mt-1"
+    >
+      <Text variant="subheader" weight="bold" color="primary">
         {label || 'Untitled Question'}
       </Text>
       {required && (
@@ -37,7 +59,12 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
       return (
         <Box className={containerClass}>
           {fieldLabel}
-          <Input size={'md'} placeholder={data?.placeholder || 'Your answer'} disabled={disabled} />
+          <Input
+            {...registerAnswers()}
+            size={'md'}
+            placeholder={data?.placeholder || 'Your answer'}
+            disabled={disabled}
+          />
         </Box>
       )
 
@@ -50,6 +77,7 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
             placeholder={data?.placeholder || 'Your long answer'}
             rows={4}
             disabled={disabled}
+            {...registerAnswers()}
           />
         </Box>
       )
@@ -60,7 +88,12 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
           {fieldLabel}
           <Stack gap="sm">
             {(data?.options || ['Option 1']).map((opt, idx) => (
-              <Checkbox key={idx} label={opt} disabled={disabled} />
+              <Checkbox
+                {...registerAnswers()}
+                key={idx}
+                label={opt}
+                disabled={disabled}
+              />
             ))}
           </Stack>
         </Box>
@@ -72,7 +105,12 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
           {fieldLabel}
           <Stack gap="sm">
             {(data?.options || ['Option 1']).map((opt, idx) => (
-              <Radio key={idx} label={opt} disabled={disabled} />
+              <Radio
+                {...registerAnswers()}
+                key={idx}
+                label={opt}
+                disabled={disabled}
+              />
             ))}
           </Stack>
         </Box>
@@ -92,7 +130,11 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
       return (
         <Box className={containerClass}>
           {fieldLabel}
-          <Select options={selectOptions} disabled={disabled} />
+          <Select
+            {...registerAnswers()}
+            options={selectOptions}
+            disabled={disabled}
+          />
         </Box>
       )
     }
@@ -106,14 +148,20 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
             align="center"
           >
             {fieldLabel}
-            <Switch checked={data?.defaultChecked || false} disabled={disabled} />
+            <Switch
+              {...registerAnswers()}
+              checked={data?.defaultChecked || false}
+              disabled={disabled}
+            />
           </Stack>
         </Box>
       )
 
     case 'Button':
       return (
-        <Box className={`w-full pt-4 border-0 px-m bg-transparent ${disabled ? 'cursor-not-allowed' : ''}`}>
+        <Box
+          className={`w-full pt-4 border-0 px-m bg-transparent ${disabled ? 'cursor-not-allowed' : ''}`}
+        >
           <Button variant="primary" size="md" fullWidth disabled={disabled}>
             {/* Buttons use children, not placeholder */}
             {data?.buttonText || 'Submit'}
@@ -136,12 +184,13 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
           >
             {/* Alerts usually wrap their text as children */}
             {(() => {
-              const sev = (data?.severity as
-                | 'error'
-                | 'info'
-                | 'success'
-                | 'warning'
-                | undefined) || 'info'
+              const sev =
+                (data?.severity as
+                  | 'error'
+                  | 'info'
+                  | 'success'
+                  | 'warning'
+                  | undefined) || 'info'
 
               const severityToTextColor: Record<string, string> = {
                 error: 'danger',
@@ -166,9 +215,8 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
                 </Text>
               )
             })()}
-
           </Alert>
-        </Box >
+        </Box>
       )
 
     default:

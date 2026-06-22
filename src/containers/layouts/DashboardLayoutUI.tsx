@@ -16,7 +16,12 @@ import { Popover } from '@primitives/Popover/Popover'
 import { Avatar } from '@primitives/Avatar/Avatar'
 import { Button } from '@primitives/Button/Button'
 import { Footer } from '@primitives/Footer/Footer'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbSeparator, BreadcrumbLink } from '@primitives/Breadcrumb/Breadcrumb'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbSeparator,
+  BreadcrumbLink,
+} from '@primitives/Breadcrumb/Breadcrumb'
 
 import {
   FileText,

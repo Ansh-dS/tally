@@ -3,7 +3,7 @@ import {
   successResponse,
   failedResponse,
   refreshSecretKey,
-} from '@utils/responses'
+} from '@/lib/utils/apiResponse'
 import { Prisma } from '@prisma/client'
 import resolveToken, { generateAccessToken } from '@auth/jwt'
 import { prismaClient } from '@db/client'

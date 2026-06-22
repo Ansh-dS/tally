@@ -48,7 +48,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
 
     const sizeMapBySpacing = {
       compact: {
-        title: 'label',
+        title: 'body',
         body: 'caption',
         iconText: 'text-subheader',
         iconBg: 'p-s',
@@ -56,14 +56,14 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
       },
       default: {
         title: 'h3',
-        body: 'body',
+        body: 'label',
         iconText: 'text-h2',
         iconBg: 'p-m',
         btn: 'md',
       },
       spacious: {
         title: 'h2',
-        body: 'subheader',
+        body: 'body',
         iconText: 'text-display',
         iconBg: 'p-l',
         btn: 'lg',
@@ -102,6 +102,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
           <Text
             variant={sizeMap.title}
             color="primary"
+            align={'center'}
             className="font-semibold leading-heading"
           >
             {title}
@@ -112,6 +113,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
               variant={sizeMap.body}
               color="secondary"
               className="leading-body"
+              align={'center'}
             >
               {description}
             </Text>

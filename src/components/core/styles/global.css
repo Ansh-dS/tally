@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 
-
 @theme {
   /* ==============================================
      2. COLOR MAPPING
@@ -8,42 +7,68 @@
 
   /* SURFACES: 'bg' prefix  */
   --color-surface-base: var(--colors-background-primary); /* main canvas */
-  --color-surface-sunken: var( --colors-background-secondary); /*creates a "step down" effect as compared to primary: example header footer.*/
-  --color-surface-raised: var(--colors-background-tertiary); /*elements surface(big area not small background) that need grab attention wrt base surface or signify interactivity*/
-  --color-surface-overlay: var(--colors-background-muted); /* components that temporarily placed on top of all other content: popover etc etc. */
+  --color-surface-sunken: var(
+    --colors-background-secondary
+  ); /*creates a "step down" effect as compared to primary: example header footer.*/
+  --color-surface-raised: var(
+    --colors-background-tertiary
+  ); /*elements surface(big area not small background) that need grab attention wrt base surface or signify interactivity*/
+  --color-surface-overlay: var(
+    --colors-background-muted
+  ); /* components that temporarily placed on top of all other content: popover etc etc. */
 
   /* ACTION: 'bg'*/
-  --color-action-primary: var(--colors-primary-500); /*default state of interactive elements*/
+  --color-action-primary: var(
+    --colors-primary-500
+  ); /*default state of interactive elements*/
   --color-action-primary-hover: var(--colors-primary-600);
   --color-action-primary-pressed: var(--colors-primary-700);
 
   --color-action-secondary: var(--colors-background-primary);
   --color-action-secondary-hover: var(--colors-background-secondary);
-  --color-action-secondary-pressed: var(--colors-neutral-200); /* Updated to neutral */
-  --color-action-accent: var(--colors-accent-500); /* highest attention to draw: in interactive elements */
+  --color-action-secondary-pressed: var(
+    --colors-neutral-200
+  ); /* Updated to neutral */
+  --color-action-accent: var(
+    --colors-accent-500
+  ); /* highest attention to draw: in interactive elements */
 
-
-/* STATUS (Feedback & System States)
+  /* STATUS (Feedback & System States)
      Prefix: 'text-status-*' or 'bg-status-*'
      Usage: Use these for Alerts, Badges, Toast notifications, and Form validations. */
-  --color-status-success: var(--colors-state-success); /* Usage: Success icons, checkmarks, solid green badges */
-  --color-status-warning: var(--colors-state-warning); /* Usage: Warning icons, yield signs */
-  --color-status-danger: var(--colors-state-error); /* Usage: Error icons, destructive 'Delete' buttons */
-  --color-status-info: var(--colors-state-info); /* Usage: Information icons, tooltips */
+  --color-status-success: var(
+    --colors-state-success
+  ); /* Usage: Success icons, checkmarks, solid green badges */
+  --color-status-warning: var(
+    --colors-state-warning
+  ); /* Usage: Warning icons, yield signs */
+  --color-status-danger: var(
+    --colors-state-error
+  ); /* Usage: Error icons, destructive 'Delete' buttons */
+  --color-status-info: var(
+    --colors-state-info
+  ); /* Usage: Information icons, tooltips */
 
   /* bg-* */
-  --color-status-info-subtle: var(--colors-state-infoSubtle); /* Usage: Backgrounds for Info Alerts */
-  --color-status-danger-subtle: var(--colors-state-errorSubtle); /* Usage: Backgrounds for Error Alerts and soft badges */
-  --color-status-warning-subtle: var(--colors-state-warningSubtle); /* Usage: Backgrounds for Warning Alerts */
-  --color-status-success-subtle: var(--colors-state-successSubtle); /* Usage: Backgrounds for Success Alerts and soft badges */
-
+  --color-status-info-subtle: var(
+    --colors-state-infoSubtle
+  ); /* Usage: Backgrounds for Info Alerts */
+  --color-status-danger-subtle: var(
+    --colors-state-errorSubtle
+  ); /* Usage: Backgrounds for Error Alerts and soft badges */
+  --color-status-warning-subtle: var(
+    --colors-state-warningSubtle
+  ); /* Usage: Backgrounds for Warning Alerts */
+  --color-status-success-subtle: var(
+    --colors-state-successSubtle
+  ); /* Usage: Backgrounds for Success Alerts and soft badges */
 
   /* bg-* */
 
   /* Usage: The "Active/Selected" state for SidebarItems, Navigation Tabs, or Selected Table Rows. 
      Matches your 8% (Light) / 12% (Dark) brand alpha logic. */
-  --color-action-primary-subtle: var(--colors-action-primarySubtle); 
-  
+  --color-action-primary-subtle: var(--colors-action-primarySubtle);
+
   /* Usage: Selected state for non-brand elements, like a secondary navigation menu 
      or a "Muted" filter button in Tally. */
   --color-action-secondary-subtle: var(--colors-action-secondarySubtle);
@@ -55,9 +80,6 @@
   /* Usage: The standard background for "Ghost" or "Transparent" buttons on hover. 
      Very light (4-6% alpha) to maintain a clean, minimal look. */
   --color-action-ghost-hover: var(--colors-action-ghostHover);
-
-
-
 
   /* BORDERS: 'border'  */
   --color-border-default: var(--colors-border-default);
@@ -173,10 +195,14 @@
   --breakpoint-xl: 80rem; /* 1280px */
   --breakpoint-2xl: 96rem; /* 1536px */
 
-  --z-index-base: var(--zIndices-base);       /* Base content layer (lowest) */
-  --z-index-nav: var(--zIndices-nav);         /* Navigation elements like sidebar/header */
+  --z-index-base: var(--zIndices-base); /* Base content layer (lowest) */
+  --z-index-nav: var(
+    --zIndices-nav
+  ); /* Navigation elements like sidebar/header */
   --z-index-overlay: var(--zIndices-overlay); /* Backdrop overlays above nav */
-  --z-index-popover: var(--zIndices-popover); /* Tooltips, dropdowns above overlays */
-  --z-index-modal: var(--zIndices-modal);     /* Modals/dialogs above popovers */
-  --z-index-toast: var(--zIndices-toast);     /* Toast notifications (highest) */
+  --z-index-popover: var(
+    --zIndices-popover
+  ); /* Tooltips, dropdowns above overlays */
+  --z-index-modal: var(--zIndices-modal); /* Modals/dialogs above popovers */
+  --z-index-toast: var(--zIndices-toast); /* Toast notifications (highest) */
 }

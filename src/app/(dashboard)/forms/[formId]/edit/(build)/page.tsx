@@ -1,4 +1,4 @@
-import EditorLayout from '@/containers/editor/EditorLayout'
+import EditorLayout from '@/containers/layouts/EditorLayout'
 import BuildPage from '@/containers/editor/build-page-components/BuildPage'
 import { getEditorData } from '@utils/data-fetchers'
 

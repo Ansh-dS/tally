@@ -9,7 +9,7 @@ import {
   ApiResponse,
   failedResponse,
   successResponse,
-} from '../utils/responses'
+} from '../utils/apiResponse'
 import { handleQueryError } from '@db/query-error'
 type AuthenticatedUser = {
   id: string

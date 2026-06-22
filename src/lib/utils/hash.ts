@@ -14,13 +14,13 @@ async function createSalt(): Promise<string> {
   }
 }
 
-async function hashPassword(password: string): Promise<string> {
+async function hashPassword(password: string, path: string): Promise<string> {
   try {
     const salt = await createSalt()
     const hashed = await bcrypt.hash(password, salt)
     return hashed
   } catch (err) {
-    console.log("Can't hash the password.")
+    console.log("Can't hash the password.", path)
     throw err
   }
 }

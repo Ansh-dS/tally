@@ -1,7 +1,5 @@
-import PreviewPage from '@actions/previewPage'
+import PreviewPage from '@/containers/feedback/previewPage'
 
-export default function Preview(){
-    return (
-        <PreviewPage/>
-    )
+export default function Preview() {
+  return <PreviewPage />
 }

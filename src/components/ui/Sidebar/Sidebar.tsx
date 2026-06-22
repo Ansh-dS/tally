@@ -127,15 +127,15 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>((props, ref) => {
 
             // 2. POSITION: LEFT SIDEBAR
             position === 'left' &&
-            (isFullyHidden
-              ? '-right-5 rounded-r-md border-l-0' // Fuses flat to the left screen edge
-              : '-right-3'), // Floats on the dividing line
+              (isFullyHidden
+                ? '-right-5 rounded-r-md border-l-0' // Fuses flat to the left screen edge
+                : '-right-3'), // Floats on the dividing line
 
             // 3. POSITION: RIGHT SIDEBAR
             position === 'right' &&
-            (isFullyHidden
-              ? '-left-5 rounded-l-md border-r-0' // Fuses flat to the right screen edge
-              : '-left-5') // Floats over the scrollbar
+              (isFullyHidden
+                ? '-left-5 rounded-l-md border-r-0' // Fuses flat to the right screen edge
+                : '-left-5') // Floats over the scrollbar
           )}
         >
           <ToggleIcon size={14} className="text-fg-secondary" />
@@ -167,7 +167,7 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>((props, ref) => {
             direction="horizontal"
             align="center"
             className={cn(
-              "w-full border-b border-border-default gap-s shrink-0 overflow-hidden bg-transparent border-0",
+              'w-full border-b border-border-default gap-s shrink-0 overflow-hidden bg-transparent border-0',
               collapsed ? 'px-1 py-4 justify-center' : 'p-m'
             )}
           >
@@ -184,7 +184,9 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>((props, ref) => {
           direction="vertical"
           className={cn(
             'flex-1 min-h-0 w-full overflow-y-auto gap-s bg-transparent border-0',
-            collapsed ? 'px-1 py-4 overflow-x-hidden items-center' : 'p-m overflow-x-auto'
+            collapsed
+              ? 'px-1 py-4 overflow-x-hidden items-center'
+              : 'p-m overflow-x-auto'
           )}
         >
           <ErrorBoundary variant="minimal">{children}</ErrorBoundary>
@@ -221,6 +223,8 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>((props, ref) => {
   )
 })
 
+Sidebar.displayName = 'Sidebar'
+
 /* -------------------------------------------------------------------------- */
 /* SIDEBAR ITEM                                                               */
 /* -------------------------------------------------------------------------- */
@@ -256,12 +260,15 @@ export const SidebarItem = forwardRef<HTMLButtonElement, SidebarItemProps>(
 
     const resolvedTextColor = color || (active ? 'brand' : 'secondary')
     const resolvedSize = size ?? 'md'
-    
+
     const resolvedIconSize =
-      resolvedSize === 'xl' ? 20
-      : resolvedSize === 'lg' ? 18
-      : resolvedSize === 'sm' ? 14
-      : 16
+      resolvedSize === 'xl'
+        ? 20
+        : resolvedSize === 'lg'
+          ? 18
+          : resolvedSize === 'sm'
+            ? 14
+            : 16
 
     const sizedIcon = React.isValidElement(icon)
       ? React.cloneElement(icon as React.ReactElement<{ size?: number }>, {
@@ -270,9 +277,11 @@ export const SidebarItem = forwardRef<HTMLButtonElement, SidebarItemProps>(
       : icon
 
     const resolvedTextVariant =
-      resolvedSize === 'xl' || resolvedSize === 'lg' ? 'body'
-      : resolvedSize === 'sm' ? 'caption'
-      : 'label'
+      resolvedSize === 'xl' || resolvedSize === 'lg'
+        ? 'body'
+        : resolvedSize === 'sm'
+          ? 'caption'
+          : 'label'
 
     const resolvedTextWeight =
       resolvedSize === 'xl' ? 'semibold' : active ? 'semibold' : 'medium'
@@ -349,7 +358,6 @@ export const SidebarItem = forwardRef<HTMLButtonElement, SidebarItemProps>(
 )
 
 SidebarItem.displayName = 'SidebarItem'
-
 
 /**
  * THE "PHANTOM TEXT" FIX: CollapsibleContent Utility

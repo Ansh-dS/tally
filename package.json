@@ -19,7 +19,6 @@
     "db:studio": "prisma studio",
     "test": "vitest",
     "test:unit": "vitest run --dir src/lib/auth/__tests__ --exclude **/*.int.test.ts",
-    "pretest:int": "dotenv -e .env -- tsx src/lib/db/check-connection.ts",
     "test:int": "dotenv -e .env -- vitest run src/lib/auth/__tests__/service.int.test.ts",
     "down": "docker compose down"
   },
@@ -40,6 +39,7 @@
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-hook-form": "^7.79.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.13"

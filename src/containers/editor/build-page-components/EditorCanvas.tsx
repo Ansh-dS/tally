@@ -10,7 +10,13 @@ import { Input } from '@primitives/Input/Input'
 import { TextArea } from '@primitives/TextArea/TextArea'
 import { Stack } from '@primitives/Stack/Stack'
 import { EmptyState } from '@primitives/EmptyState/EmptyState'
-import { Sortable, SortableItem, SortableDragHandle, SortableActions, SortableAction } from '@primitives/Sortable/Sortable'
+import {
+  Sortable,
+  SortableItem,
+  SortableDragHandle,
+  SortableActions,
+  SortableAction,
+} from '@primitives/Sortable/Sortable'
 import { Trash } from 'lucide-react'
 
 function CanvasBlock({
@@ -138,20 +144,19 @@ export default function EditorCanvas({
     return () => clearTimeout(timerId)
   }, [blocks, header, currentId, setLoading]) // 4. Depend on currentId!
 
-
   useEffect(() => {
     // creating a channel.
-    const channel = new BroadcastChannel("tally-form-data")
+    const channel = new BroadcastChannel('tally-form-data')
 
-    // whenever we make change we post form_data which gets recived by other browser tab. 
+    // whenever we make change we post form_data which gets recived by other browser tab.
     const broadcastForm = () => {
       channel.postMessage({
         id: 'State_Updated',
-        formData: { header, blocks }
+        formData: { header, blocks },
       })
     }
 
-    // Listen for the Preview tab's "Shout": sending data for the first time. 
+    // Listen for the Preview tab's "Shout": sending data for the first time.
     // using "onMessage"
     channel.onmessage = (e) => {
       if (e.data?.id === 'REQUEST_INITIAL_STATE') {
@@ -160,10 +165,10 @@ export default function EditorCanvas({
     }
 
     // 2. Broadcast on every change
-    broadcastForm();
+    broadcastForm()
 
     // Close this connection only when we unmount canvas component uisng return of useEffect.
-    return ()=> channel.close()
+    return () => channel.close()
   }, [blocks, header])
 
   return (

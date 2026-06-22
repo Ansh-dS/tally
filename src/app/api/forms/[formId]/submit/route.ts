@@ -11,9 +11,9 @@ why have we created POST Request(public) even if, we can use server actions?
 import { responseValidator } from '@schemas/response'
 import { prismaClient } from '@db/client'
 import { NextRequest, NextResponse } from 'next/server'
-import { successResponse } from '@/lib/utils/responses'
+import { successResponse } from '@/lib/utils/apiResponse'
 import { handleQueryError } from '@/lib/db/query-error'
-import { failedResponse } from '@/lib/utils/responses'
+import { failedResponse } from '@/lib/utils/apiResponse'
 // {params}: special syntax to extract formId from the url.
 /* 
 typeof params is an object which contains:

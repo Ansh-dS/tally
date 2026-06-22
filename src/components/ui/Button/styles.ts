@@ -26,7 +26,7 @@ export const buttonVariants = cva(
           'hover:bg-action-primary-hover',
           'active:bg-action-primary-pressed active:shadow-md',
         ],
-
+        success: ['bg-status-success/30', 'border-status-success/20'],
         secondary: [
           'bg-action-secondary text-fg-brand border-border-default shadow-sm',
           'hover:bg-action-secondary-hover hover:border-border-strong hover:shadow-sm',

@@ -21,11 +21,9 @@ export const sidebarVariants = cva(
       size: { narrow: '', wide: '' },
 
       layout: {
-       
         docked: 'sticky top-0 ',
         // Made overlay distinctly different from docked so it truly floats
         overlay: 'fixed top-0 bottom-0 z-50 shadow-2xl',
-
       },
       position: {
         left: '',

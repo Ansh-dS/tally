@@ -9,7 +9,13 @@ import { Stat } from '@primitives/Stat/Stat'
 import { Text } from '@primitives/Text/Text'
 import { Select } from '@primitives/Select/Select'
 import { Footer } from '@primitives/Footer/Footer'
-import { DataGrid, DataGridHeader, DataGridRow, DataGridHead, DataGridCell } from '@primitives/DataGrid/DataGrid'
+import {
+  DataGrid,
+  DataGridHeader,
+  DataGridRow,
+  DataGridHead,
+  DataGridCell,
+} from '@primitives/DataGrid/DataGrid'
 
 import {
   BarChart3,
@@ -72,7 +78,10 @@ export default function EditorResultPage() {
             <Text variant="h2" weight="bold" color="primary">
               Insights
             </Text>
-            <Stack direction="horizontal" className="gap-md items-center w-full">
+            <Stack
+              direction="horizontal"
+              className="gap-md items-center w-full"
+            >
               <Select
                 options={[
                   { label: 'Last 30 Days', value: '30' },
