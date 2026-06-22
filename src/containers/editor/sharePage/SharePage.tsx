@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, type ChangeEvent } from 'react'
 import { Stack } from '@primitives/Stack/Stack'
 import { Box } from '@primitives/Box/Box'
 import { Text } from '@primitives/Text/Text'
@@ -12,20 +12,22 @@ import { Switch } from '@primitives/Switch/Switch'
 import { TextArea } from '@primitives/TextArea/TextArea'
 import { Badge } from '@primitives/Badge/Badge'
 import FlexibleScreen from '@/containers/editor/sharePage/ResizeScreen'
-import { useCopyHandler } from '@/action/utilsShare'
-
+import { useCopyHandler } from '@/lib/utils/share'
+import { useStore } from '@/lib/utils/store'
 
 export default function SharePage(SharePageInput: { formId: string }) {
   const [isPasswordEnabled, setIsPasswordEnabled] = useState(false)
   const [isDateEnabled, setIsDateEnabled] = useState(false)
   const copyHandler = useCopyHandler()
- 
+
 
   const { formId } = SharePageInput
   const host = process.env.NEXT_PUBLIC_SHAREURL      // NEXT_PUBLIC: is must before any variable name at client side. 
   const shareUrl = `${host}${formId}`
 
- 
+
+  const { expDate, setExpDate } = useStore((state) => state.formExpDate)
+  const { password, setFormPassword } = useStore((state) => state.formPassword)
   /*
     how are we spliting the screen:
       using the flex as 1 one left and 1.5 on right. 
@@ -86,19 +88,19 @@ export default function SharePage(SharePageInput: { formId: string }) {
                       className='w-full justify-between'
                     >
                       <Text weight="normal" >Require Password</Text>
-                      <Switch checked={isPasswordEnabled} onClick={()=>setIsPasswordEnabled(!isPasswordEnabled)} />
+                      <Switch checked={isPasswordEnabled} onClick={() => setIsPasswordEnabled(!isPasswordEnabled)} />
                     </Stack>
                     <Box
-                      className={`w-full overflow-hidden transition-all animate-duration-normal ease-out ${
-                        isPasswordEnabled
+                      className={`w-full overflow-hidden transition-all animate-duration-normal ease-out ${isPasswordEnabled
                           ? 'max-h-20 opacity-100 translate-y-0'
                           : 'max-h-0 opacity-0 -translate-y-2 pointer-events-none'
-                      }`}
+                        }`}
                     >
                       <Input
                         type="password"
                         placeholder="Set password..."
                         className="transition-all animate-duration-fast"
+                        onChange={(e) => { setFormPassword(e.target.value) }}
                       />
                     </Box>
                   </Stack>
@@ -111,16 +113,21 @@ export default function SharePage(SharePageInput: { formId: string }) {
                       align="center"
                     >
                       <Text weight="normal">Close on date</Text>
-                      <Switch  checked={isDateEnabled} onClick={()=>setIsDateEnabled(!isDateEnabled)} />
+                      <Switch checked={isDateEnabled} onClick={() => setIsDateEnabled(!isDateEnabled)} />
                     </Stack>
                     <Stack
-                      className={`w-full overflow-hidden transition-all animate-duration-normal ease-out ${
-                        isDateEnabled
+                      className={`w-full overflow-hidden transition-all animate-duration-normal ease-out ${isDateEnabled
                           ? 'max-h-20 opacity-100 translate-y-0'
                           : 'max-h-0 opacity-0 -translate-y-2 pointer-events-none'
-                      }`}
+                        }`}
                     >
-                      <Input type="date" className="transition-all animate-duration-fast" />
+                      <Input type="date" className="transition-all animate-duration-fast" onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        const val = e.target.value
+                        if (val) {
+                          const date = new Date(val)
+                          setExpDate(date)
+                        }
+                      }} />
                     </Stack>
                   </Stack>
                 </Stack>
@@ -145,7 +152,7 @@ export default function SharePage(SharePageInput: { formId: string }) {
                     rows={4}
                     value={`<iframe src="${shareUrl}" ...></iframe>`}
                   />
-                  <Button variant="glass" size="md"  onClick={() => copyHandler("Copied iframe", `<iframe src="${shareUrl}" ...></iframe>`)}>
+                  <Button variant="glass" size="md" onClick={() => copyHandler("Copied iframe", `<iframe src="${shareUrl}" ...></iframe>`)}>
                     Copy
                   </Button>
                 </Stack>

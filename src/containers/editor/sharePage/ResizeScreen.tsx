@@ -142,8 +142,8 @@ export default function FlexibleScreen() {
 
         {/* THE FORM BLOCKS */}
         <Stack className="gap-10 p-l">
-          {blocks.map((block) => (
-            <LiveFieldRenderer key={block.id} block={block} />
+          {blocks.map((block, index) => (
+            <LiveFieldRenderer key={block.id} block={block} questionNumber={index} />
           ))}
         </Stack>
       </Box>

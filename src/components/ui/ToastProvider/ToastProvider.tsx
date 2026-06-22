@@ -229,7 +229,7 @@ export const ToastAction = forwardRef<
   )
 })
 ToastAction.displayName = 'ToastAction'
-type ToastItem = {
+export type ToastItem = {
   id: string
   intent: 'info' | 'success' | 'warning' | 'error'
   title: string

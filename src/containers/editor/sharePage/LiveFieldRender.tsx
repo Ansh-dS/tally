@@ -10,9 +10,28 @@ import { Switch } from '@primitives/Switch/Switch'
 import { Alert } from '@primitives/Alert/Alert'
 import { TextArea } from '@primitives/TextArea/TextArea'
 import { FormBlock } from '@utils/store'
+import type { FieldValues, UseFormRegister } from 'react-hook-form'
 
-export function LiveFieldRenderer({ block, disabled = false }: { block: FormBlock; disabled?: boolean }) {
+// use registor here: 
+export function LiveFieldRenderer({
+  block,
+  disabled = false,
+  questionNumber,
+  register,
+}: {
+  block: FormBlock
+  disabled?: boolean
+  questionNumber: number
+  register?: UseFormRegister<FieldValues>
+}) {
   const { type, label, required, data } = block
+
+  function registerAnswers() {
+    if (!register) return {}
+
+    return { ...register(`q${questionNumber}`, { required }) }
+  }
+
 
   const fieldLabel = (
     <Stack direction="horizontal" align="start" className="mb-s bg-transparent mt-1">
@@ -37,7 +56,7 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
       return (
         <Box className={containerClass}>
           {fieldLabel}
-          <Input size={'md'} placeholder={data?.placeholder || 'Your answer'} disabled={disabled} />
+          <Input {...registerAnswers()} size={'md'} placeholder={data?.placeholder || 'Your answer'} disabled={disabled} />
         </Box>
       )
 
@@ -50,6 +69,7 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
             placeholder={data?.placeholder || 'Your long answer'}
             rows={4}
             disabled={disabled}
+            {...registerAnswers()}
           />
         </Box>
       )
@@ -60,7 +80,7 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
           {fieldLabel}
           <Stack gap="sm">
             {(data?.options || ['Option 1']).map((opt, idx) => (
-              <Checkbox key={idx} label={opt} disabled={disabled} />
+              <Checkbox  {...registerAnswers()} key={idx} label={opt} disabled={disabled} />
             ))}
           </Stack>
         </Box>
@@ -72,7 +92,7 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
           {fieldLabel}
           <Stack gap="sm">
             {(data?.options || ['Option 1']).map((opt, idx) => (
-              <Radio key={idx} label={opt} disabled={disabled} />
+              <Radio  {...registerAnswers()} key={idx} label={opt} disabled={disabled} />
             ))}
           </Stack>
         </Box>
@@ -92,7 +112,7 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
       return (
         <Box className={containerClass}>
           {fieldLabel}
-          <Select options={selectOptions} disabled={disabled} />
+          <Select  {...registerAnswers()} options={selectOptions} disabled={disabled} />
         </Box>
       )
     }
@@ -106,7 +126,7 @@ export function LiveFieldRenderer({ block, disabled = false }: { block: FormBloc
             align="center"
           >
             {fieldLabel}
-            <Switch checked={data?.defaultChecked || false} disabled={disabled} />
+            <Switch {...registerAnswers()} checked={data?.defaultChecked || false} disabled={disabled} />
           </Stack>
         </Box>
       )
