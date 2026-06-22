@@ -2,7 +2,12 @@
 import { Avatar } from '@primitives/Avatar/Avatar'
 import { Badge } from '@primitives/Badge/Badge'
 import { Box } from '@primitives/Box/Box'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '@primitives/Breadcrumb/Breadcrumb'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+} from '@primitives/Breadcrumb/Breadcrumb'
 import { Button } from '@primitives/Button/Button'
 import { Header } from '@primitives/Header/Header'
 import { Popover } from '@primitives/Popover/Popover'
@@ -25,7 +30,7 @@ const TOAST_DELAY_MS = 500
 export default function EditorLayout({
   children,
   activeTab = 'build',
-  formId
+  formId,
 }: {
   children: React.ReactNode
   activeTab?: EditorTab
@@ -34,7 +39,7 @@ export default function EditorLayout({
   const router = useRouter()
   const isLoading = useStore((state) => state.saveButton.isLoading)
   const [isPublishLoading, setPublishLoading] = useState(false)
-  const [publishStyle, setPublishStyle] = useState<"primary" | "success">(
+  const [publishStyle, setPublishStyle] = useState<'primary' | 'success'>(
     'primary'
   )
   const { showToast } = useToast()
@@ -47,15 +52,12 @@ export default function EditorLayout({
   const currentPageLabel =
     activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
 
-
   const { expDate } = useStore((state) => state.formExpDate)
   const { password } = useStore((state) => state.formPassword)
 
-
   const publishHandler = useCallback(async () => {
-    setPublishLoading(true) //loading to true, 
-    setPublishStyle("success")
-
+    setPublishLoading(true) //loading to true,
+    setPublishStyle('success')
 
     const isPublished = await publishForm(
       {
@@ -75,23 +77,20 @@ export default function EditorLayout({
           description: `http://localhost:3000/f/${formId}`,
         })
       }, TOAST_DELAY_MS)
-
     } else {
       window.setTimeout(() => {
         showToast({
-          intent: "error",
-          title: "Unexpected Error",
+          intent: 'error',
+          title: 'Unexpected Error',
           description: isPublished.message,
           variant: 'solid',
         })
       }, TOAST_DELAY_MS)
     }
 
-    setPublishStyle("primary")
+    setPublishStyle('primary')
     setPublishLoading(false)
-
   }, [expDate, formId, password, showToast])
-
 
   return (
     <Stack direction={'vertical'} gap={'none'} className="h-screen w-screen ">
@@ -118,21 +117,22 @@ export default function EditorLayout({
             >
               {isLoading ? '' : 'Saved'}
             </Badge>
-            <Button variant="outline" size="sm" onClick={() => handlePreview(formId)}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePreview(formId)}
+            >
               Preview
             </Button>
             <Button
               isLoading={isPublishLoading}
-              color={publishStyle === "success" ? "success" : undefined}
+              color={publishStyle === 'success' ? 'success' : undefined}
               variant={publishStyle}
               size="sm"
               onClick={publishHandler}
-              className='trasition-all animate-duration-normal'
+              className="trasition-all animate-duration-normal"
             >
-              {
-                isPublishLoading ? "Publishing" :
-                  "Publish"
-              }
+              {isPublishLoading ? 'Publishing' : 'Publish'}
             </Button>
             <Popover
               align="end"

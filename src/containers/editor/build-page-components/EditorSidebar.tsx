@@ -4,7 +4,7 @@ import { Sidebar } from '@primitives/Sidebar/Sidebar'
 import { Text } from '@primitives/Text/Text'
 import { Stack } from '@primitives/Stack/Stack'
 import { Box } from '@primitives/Box/Box'
-import {  Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { DraggablePaletteItem } from '../DraggablePalletItem'
 import { BlockType } from '@utils/store'
 import { useState } from 'react'
@@ -41,7 +41,7 @@ export function EditorSidebar() {
       collapsed={isCollapsed}
       header={
         <Text
-          variant={"subheader"}
+          variant={'subheader'}
           weight={'bold'}
           color={'primary'}
           className="py-s pr-s"
@@ -49,7 +49,6 @@ export function EditorSidebar() {
           Elements
         </Text>
       }
-     
       children={
         /* 2. Main Children Zone: The Scrollable Palette */
         <Stack className="h-full p-s " gap="md">

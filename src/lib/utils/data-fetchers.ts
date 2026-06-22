@@ -93,39 +93,38 @@ export const getEditorData = cache(async (formId: string, path: string) => {
   }
 })
 
-export interface formType{
-        title: string | undefined,
-        blocks:string , 
-        expiresAt:Date |null,
-        password:string |null,
-        published:boolean ,
-        description:string| undefined
+export interface formType {
+  title: string | undefined
+  blocks: string
+  expiresAt: Date | null
+  password: string | null
+  published: boolean
+  description: string | undefined
 }
-export const getform= cache(async({formId}:{formId:string})=>{
-  
+export const getform = cache(async ({ formId }: { formId: string }) => {
   /* 
   output: 
     header, blocks, exipyAt , password, published.
   
   first fetch => then decide, weather to give autherization or not. 
   */
-  try{
-    const formAttributes= await prismaClient.form.findUnique({
-      where:{
-        id: formId
+  try {
+    const formAttributes = await prismaClient.form.findUnique({
+      where: {
+        id: formId,
       },
-      select:{
+      select: {
         title: true,
-        blocks:true, 
-        expiresAt:true,
-        password:true,
-        published:true,
-        description:true
-      }
+        blocks: true,
+        expiresAt: true,
+        password: true,
+        published: true,
+        description: true,
+      },
     })
 
     return formAttributes as formType
-  }catch(err){
-    console.error("500: Our database service is not working.")
+  } catch (err) {
+    console.error('500: Our database service is not working.')
   }
 })

@@ -260,11 +260,8 @@ export const useToast = () => ({ showToast })
 // 3. The isolated viewport (Listens for events)
 const ToastViewport = () => {
   const [toasts, setToasts] = useState<ToastItem[]>([])
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-
     const handleEvent = (e: Event) => {
       const detail = (e as CustomEvent<Omit<ToastItem, 'id'>>).detail
       const id = Math.random().toString(36).substring(2, 9)
@@ -280,7 +277,7 @@ const ToastViewport = () => {
     return () => window.removeEventListener(TOAST_EVENT, handleEvent)
   }, [])
 
-  if (!mounted || toasts.length === 0) return null
+  if (toasts.length === 0 || typeof document === 'undefined') return null
 
   // inset: moves our alerts at the bottom right cornor.
   return createPortal(

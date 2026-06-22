@@ -5,18 +5,24 @@
 // It shows a 404 error to keep your drafts private.
 
 import { FallbackPage } from '@/containers/fallback/FallbackPage'
-import { canShowForm, getFormFallbackConfig, fallbacks } from '@/lib/utils/form-access'
+import {
+  canShowForm,
+  getFormFallbackConfig,
+  fallbacks,
+} from '@/lib/utils/form-access'
 import { getform } from '@utils/data-fetchers'
 import { SubmissionWithPassProvider } from '@/containers/UserSubmission/submissionSwitcher'
 
-export default async function ResponseSubmissionPage({ params }: { params: Promise<{ formId: string }> }) {
+export default async function ResponseSubmissionPage({
+  params,
+}: {
+  params: Promise<{ formId: string }>
+}) {
   const { formId } = await params
   const formAttributes = await getform({ formId })
 
-
   // form exists or not
-  if (!formAttributes) return <FallbackPage  {...fallbacks['no_form_exists']} />
-
+  if (!formAttributes) return <FallbackPage {...fallbacks['no_form_exists']} />
 
   // Fallback Page: can't show form
   const accessState = await canShowForm({
@@ -24,14 +30,18 @@ export default async function ResponseSubmissionPage({ params }: { params: Promi
     password: formAttributes.password,
     expDate: formAttributes.expiresAt,
   })
-  // if true: show's up the fallback page. 
+  // if true: show's up the fallback page.
   if (!accessState.canShow) {
     const fallbackConfig = await getFormFallbackConfig(accessState)
     return fallbackConfig ? <FallbackPage {...fallbackConfig} /> : null
   }
 
-  return <SubmissionWithPassProvider formAttributes={formAttributes} formId={formId} />
-  
+  return (
+    <SubmissionWithPassProvider
+      formAttributes={formAttributes}
+      formId={formId}
+    />
+  )
 }
 
 /*

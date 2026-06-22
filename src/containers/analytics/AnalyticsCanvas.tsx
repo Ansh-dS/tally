@@ -4,7 +4,13 @@ import { Badge } from '@primitives/Badge/Badge'
 import { Box } from '@primitives/Box/Box'
 import { Button } from '@primitives/Button/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@primitives/Card/Card'
-import { DataGrid, DataGridCell, DataGridHead, DataGridHeader, DataGridRow } from '@primitives/DataGrid/DataGrid'
+import {
+  DataGrid,
+  DataGridCell,
+  DataGridHead,
+  DataGridHeader,
+  DataGridRow,
+} from '@primitives/DataGrid/DataGrid'
 import { Input } from '@primitives/Input/Input'
 import { Select } from '@primitives/Select/Select'
 import { Stack } from '@primitives/Stack/Stack'

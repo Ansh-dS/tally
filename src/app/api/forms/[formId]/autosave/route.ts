@@ -37,7 +37,7 @@ export async function POST(
 
   let actualFormId = formId
   let newlyCreatedId = null
-  console.log("reached autosave")
+  console.log('reached autosave')
   try {
     /* 
             Why aren't we use "getAuthorizedUser" as it have "tryRefreshToken" and all the "protectApiRoute" already:
@@ -102,7 +102,7 @@ export async function POST(
         },
         { removeOnComplete: true, delay: 5000 }
       )
-        console.log("Successfuly Added to queue")
+      console.log('Successfuly Added to queue')
       return toRouteResponse(
         successResponse({
           data: {

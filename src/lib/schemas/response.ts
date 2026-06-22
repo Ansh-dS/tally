@@ -4,7 +4,11 @@
 import { z } from 'zod'
 import { prismaClient } from '@db/client'
 import { handleQueryError } from '@/lib/db/query-error'
-import { ApiResponse, errorResponse, successResponse } from '@/lib/utils/apiResponse'
+import {
+  ApiResponse,
+  errorResponse,
+  successResponse,
+} from '@/lib/utils/apiResponse'
 
 // in-general format.
 // output would be in json format.
@@ -77,5 +81,3 @@ export async function responseValidator(payload: {
     return handleQueryError(err, path) as ApiResponse<SubmitResponseInput>
   }
 }
-
-

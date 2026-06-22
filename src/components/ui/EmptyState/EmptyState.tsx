@@ -102,7 +102,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
           <Text
             variant={sizeMap.title}
             color="primary"
-            align={"center"}
+            align={'center'}
             className="font-semibold leading-heading"
           >
             {title}
@@ -113,7 +113,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
               variant={sizeMap.body}
               color="secondary"
               className="leading-body"
-              align={"center"}
+              align={'center'}
             >
               {description}
             </Text>

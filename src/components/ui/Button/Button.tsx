@@ -98,7 +98,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const isIconSize = resolvedSize === 'icon'
     const hasTextContent = Boolean(children || text)
     const hasEndIcon = Boolean(endIcon)
-    const isStartIconOnly = Boolean(startIcon) && !hasTextContent && !hasEndIcon && !isLoading
+    const isStartIconOnly =
+      Boolean(startIcon) && !hasTextContent && !hasEndIcon && !isLoading
 
     const textVariant =
       resolvedSize === 'xl' || resolvedSize === 'lg'
@@ -130,7 +131,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           }>,
           {
             size: iconSize,
-            className: cn('block', (icon.props as { className?: string }).className),
+            className: cn(
+              'block',
+              (icon.props as { className?: string }).className
+            ),
           }
         )
       }
@@ -138,17 +142,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const spinnerSize =
-      resolvedSize === 'xl' ? 'lg'
-      : resolvedSize === 'lg' ? 'md'
-      : resolvedSize === 'sm' ? 'xs'
-      : 'sm'
+      resolvedSize === 'xl'
+        ? 'lg'
+        : resolvedSize === 'lg'
+          ? 'md'
+          : resolvedSize === 'sm'
+            ? 'xs'
+            : 'sm'
 
     const contentGapClass =
-      (collapsed || isIconSize || isStartIconOnly) ? 'gap-0'
-      : resolvedSize === 'xl' ? 'gap-3'
-      : resolvedSize === 'lg' ? 'gap-2.5'
-      : resolvedSize === 'sm' ? 'gap-1.5'
-      : 'gap-2'
+      collapsed || isIconSize || isStartIconOnly
+        ? 'gap-0'
+        : resolvedSize === 'xl'
+          ? 'gap-3'
+          : resolvedSize === 'lg'
+            ? 'gap-2.5'
+            : resolvedSize === 'sm'
+              ? 'gap-1.5'
+              : 'gap-2'
 
     // maping button variants with text color.
     // inital value is primay as it also covers outline and ghost variants.
@@ -176,8 +187,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         // any one must be true to disable button
         disabled={disabled || isLoading}
         className={cn(
-          buttonVariants({ variant, size: collapsed ? undefined : resolvedSize, fullWidth: collapsed ? false : fullWidth }),
-          (collapsed || isIconSize || isStartIconOnly) && 'h-10 w-10 p-0! flex items-center justify-center justify-items-center',
+          buttonVariants({
+            variant,
+            size: collapsed ? undefined : resolvedSize,
+            fullWidth: collapsed ? false : fullWidth,
+          }),
+          (collapsed || isIconSize || isStartIconOnly) &&
+            'h-10 w-10 p-0! flex items-center justify-center justify-items-center',
           isLoading && 'cursor-wait opacity-90',
           !isLoading && 'active:scale-[0.98]',
           className
@@ -227,16 +243,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             </Text>
           )}
 
-          {!collapsed && !isIconSize && !isStartIconOnly && !isLoading && endIcon && (
-            <span
-              className={cn(
-                'flex items-center justify-center shrink-0',
-                textColorMap[resolvedIconColor]
-              )}
-            >
-              {renderIcon(endIcon)}
-            </span>
-          )}
+          {!collapsed &&
+            !isIconSize &&
+            !isStartIconOnly &&
+            !isLoading &&
+            endIcon && (
+              <span
+                className={cn(
+                  'flex items-center justify-center shrink-0',
+                  textColorMap[resolvedIconColor]
+                )}
+              >
+                {renderIcon(endIcon)}
+              </span>
+            )}
         </div>
       </button>
     )

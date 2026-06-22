@@ -12,7 +12,7 @@ import { TextArea } from '@primitives/TextArea/TextArea'
 import { FormBlock } from '@utils/store'
 import type { FieldValues, UseFormRegister } from 'react-hook-form'
 
-// use registor here: 
+// use registor here:
 export function LiveFieldRenderer({
   block,
   disabled = false,
@@ -32,10 +32,13 @@ export function LiveFieldRenderer({
     return { ...register(`q${questionNumber}`, { required }) }
   }
 
-
   const fieldLabel = (
-    <Stack direction="horizontal" align="start" className="mb-s bg-transparent mt-1">
-      <Text variant="subheader" weight="bold" color="primary" >
+    <Stack
+      direction="horizontal"
+      align="start"
+      className="mb-s bg-transparent mt-1"
+    >
+      <Text variant="subheader" weight="bold" color="primary">
         {label || 'Untitled Question'}
       </Text>
       {required && (
@@ -56,7 +59,12 @@ export function LiveFieldRenderer({
       return (
         <Box className={containerClass}>
           {fieldLabel}
-          <Input {...registerAnswers()} size={'md'} placeholder={data?.placeholder || 'Your answer'} disabled={disabled} />
+          <Input
+            {...registerAnswers()}
+            size={'md'}
+            placeholder={data?.placeholder || 'Your answer'}
+            disabled={disabled}
+          />
         </Box>
       )
 
@@ -80,7 +88,12 @@ export function LiveFieldRenderer({
           {fieldLabel}
           <Stack gap="sm">
             {(data?.options || ['Option 1']).map((opt, idx) => (
-              <Checkbox  {...registerAnswers()} key={idx} label={opt} disabled={disabled} />
+              <Checkbox
+                {...registerAnswers()}
+                key={idx}
+                label={opt}
+                disabled={disabled}
+              />
             ))}
           </Stack>
         </Box>
@@ -92,7 +105,12 @@ export function LiveFieldRenderer({
           {fieldLabel}
           <Stack gap="sm">
             {(data?.options || ['Option 1']).map((opt, idx) => (
-              <Radio  {...registerAnswers()} key={idx} label={opt} disabled={disabled} />
+              <Radio
+                {...registerAnswers()}
+                key={idx}
+                label={opt}
+                disabled={disabled}
+              />
             ))}
           </Stack>
         </Box>
@@ -112,7 +130,11 @@ export function LiveFieldRenderer({
       return (
         <Box className={containerClass}>
           {fieldLabel}
-          <Select  {...registerAnswers()} options={selectOptions} disabled={disabled} />
+          <Select
+            {...registerAnswers()}
+            options={selectOptions}
+            disabled={disabled}
+          />
         </Box>
       )
     }
@@ -126,14 +148,20 @@ export function LiveFieldRenderer({
             align="center"
           >
             {fieldLabel}
-            <Switch {...registerAnswers()} checked={data?.defaultChecked || false} disabled={disabled} />
+            <Switch
+              {...registerAnswers()}
+              checked={data?.defaultChecked || false}
+              disabled={disabled}
+            />
           </Stack>
         </Box>
       )
 
     case 'Button':
       return (
-        <Box className={`w-full pt-4 border-0 px-m bg-transparent ${disabled ? 'cursor-not-allowed' : ''}`}>
+        <Box
+          className={`w-full pt-4 border-0 px-m bg-transparent ${disabled ? 'cursor-not-allowed' : ''}`}
+        >
           <Button variant="primary" size="md" fullWidth disabled={disabled}>
             {/* Buttons use children, not placeholder */}
             {data?.buttonText || 'Submit'}
@@ -156,12 +184,13 @@ export function LiveFieldRenderer({
           >
             {/* Alerts usually wrap their text as children */}
             {(() => {
-              const sev = (data?.severity as
-                | 'error'
-                | 'info'
-                | 'success'
-                | 'warning'
-                | undefined) || 'info'
+              const sev =
+                (data?.severity as
+                  | 'error'
+                  | 'info'
+                  | 'success'
+                  | 'warning'
+                  | undefined) || 'info'
 
               const severityToTextColor: Record<string, string> = {
                 error: 'danger',
@@ -186,9 +215,8 @@ export function LiveFieldRenderer({
                 </Text>
               )
             })()}
-
           </Alert>
-        </Box >
+        </Box>
       )
 
     default:

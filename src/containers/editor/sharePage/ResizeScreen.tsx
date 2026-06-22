@@ -35,14 +35,14 @@ export default function FlexibleScreen() {
   const blocks = useStore((state) => state.blocks)
   const header = useStore((state) => state.header)
 
-  // 2. callback: so we don't recreate the function again when our dimentions are changing as re-rendering happens. 
+  // 2. callback: so we don't recreate the function again when our dimentions are changing as re-rendering happens.
   const startResizing = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
-      setIsResizing(true) // True means: we are ready ot update the dimentions. 
+      setIsResizing(true) // True means: we are ready ot update the dimentions.
 
-      const startX = (e.clientX) / 16
-      const startY = (e.clientY) / 16
+      const startX = e.clientX / 16
+      const startY = e.clientY / 16
       const startW = dimensions.width // already in rem
       const startH = dimensions.height
 
@@ -50,8 +50,8 @@ export default function FlexibleScreen() {
       const onMouseMove = (moveEvent: MouseEvent) => {
         // Calculate distance from start
         // moveEveent.clientX: new position.
-        const deltaX = (moveEvent.clientX) / 16 - startX
-        const deltaY = (moveEvent.clientY) / 16 - startY
+        const deltaX = moveEvent.clientX / 16 - startX
+        const deltaY = moveEvent.clientY / 16 - startY
 
         // FIX: Calculate new dimensions first so we can use them for the scale math
         const newWidth = Math.max(20, startW + deltaX)
@@ -62,14 +62,13 @@ export default function FlexibleScreen() {
           height: newHeight, // Min height constraint
         })
 
-
         // Calculate available width accounting for:
         // 1. Right panel is flex-[1.5] out of total flex-[2.5] (1 + 1.5)
         // 2. Padding on right panel is p-10 (2.5rem on each side = 5rem total)
-        const rightPanelFlexRatio = 1.5 / 2.5 // this is: 1/3 or 1/4 or the whole apple or screen width. 
-        const rightPanelWidthRem = (window.innerWidth / 16) * rightPanelFlexRatio
+        const rightPanelFlexRatio = 1.5 / 2.5 // this is: 1/3 or 1/4 or the whole apple or screen width.
+        const rightPanelWidthRem =
+          (window.innerWidth / 16) * rightPanelFlexRatio
         const availableWidthRem = rightPanelWidthRem - 5 // subtract padding
-
 
         /* 
         Scale to fit within the available space:
@@ -79,7 +78,7 @@ export default function FlexibleScreen() {
         setScaleValue(Math.min(1, availableWidthRem / newWidth))
       }
 
-      // FUNCITON 2:  
+      // FUNCITON 2:
       const onMouseUp = () => {
         setIsResizing(false)
         window.removeEventListener('mousemove', onMouseMove)
@@ -113,7 +112,7 @@ export default function FlexibleScreen() {
       style={{
         width: `${dimensions.width}rem`,
         height: `${dimensions.height}rem`,
-        borderWidth: '0.5rem', // Mimics a device frame. over these border we try to place box. 
+        borderWidth: '0.5rem', // Mimics a device frame. over these border we try to place box.
         borderColor: isResizing
           ? 'var(--colors-background-tertiary)'
           : 'var(--colors-background-primary)',
@@ -143,7 +142,11 @@ export default function FlexibleScreen() {
         {/* THE FORM BLOCKS */}
         <Stack className="gap-10 p-l">
           {blocks.map((block, index) => (
-            <LiveFieldRenderer key={block.id} block={block} questionNumber={index} />
+            <LiveFieldRenderer
+              key={block.id}
+              block={block}
+              questionNumber={index}
+            />
           ))}
         </Stack>
       </Box>
@@ -186,8 +189,10 @@ export default function FlexibleScreen() {
         onMouseDown={startResizing}
         className="absolute -bottom-2 -right-2 border-0  w-6 h-6 cursor-nwse-resize z-popover flex items-center justify-center"
       >
-        <Box className={`w-2 h-2 rounded-full bg-action-primary  opacity-0 hover:opacity-100 transition-opacity
-        ` } />
+        <Box
+          className={`w-2 h-2 rounded-full bg-action-primary  opacity-0 hover:opacity-100 transition-opacity
+        `}
+        />
       </Box>
     </Box>
   )

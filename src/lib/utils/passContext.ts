@@ -1,11 +1,11 @@
-import { createContext, type Dispatch, type SetStateAction } from "react"
+import { createContext, type Dispatch, type SetStateAction } from 'react'
 
 interface contextInputs {
-    setValidPass: Dispatch<SetStateAction<boolean>>
-    isValidPass: boolean
+  setValidPass: Dispatch<SetStateAction<boolean>>
+  isValidPass: boolean
 }
 
-export const passContext = createContext<contextInputs>({ 
-    setValidPass: () => {}, 
-    isValidPass: false 
+export const passContext = createContext<contextInputs>({
+  setValidPass: () => {},
+  isValidPass: false,
 })

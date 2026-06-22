@@ -26,10 +26,7 @@ export const buttonVariants = cva(
           'hover:bg-action-primary-hover',
           'active:bg-action-primary-pressed active:shadow-md',
         ],
-        success: [
-          'bg-status-success/30',
-          'border-status-success/20',
-        ],
+        success: ['bg-status-success/30', 'border-status-success/20'],
         secondary: [
           'bg-action-secondary text-fg-brand border-border-default shadow-sm',
           'hover:bg-action-secondary-hover hover:border-border-strong hover:shadow-sm',
@@ -68,7 +65,6 @@ export const buttonVariants = cva(
           // We use your primarySubtle here to give it a solid "Selected" feel
           'active:bg-action-primary-subtle active:scale-[0.98] active:border-action-primary/40',
         ],
-       
       },
       /* 4. Geometric Scaling (2:1 Ratio)
           We removed 'text-*' classes because the <Text> component now 

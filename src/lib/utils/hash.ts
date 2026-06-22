@@ -14,7 +14,7 @@ async function createSalt(): Promise<string> {
   }
 }
 
-async function hashPassword(password: string, path:string): Promise<string> {
+async function hashPassword(password: string, path: string): Promise<string> {
   try {
     const salt = await createSalt()
     const hashed = await bcrypt.hash(password, salt)

@@ -121,8 +121,6 @@ export async function publishForm(
   const authRes = await protectApiRoute(path)
   if (authRes.status === 'failed' || authRes.status === 'error') return authRes
 
-
-
   const user = authRes.data as AuthorizedUser
   const updates: {
     published: boolean
@@ -131,8 +129,11 @@ export async function publishForm(
   } = { published: true }
 
   if (input.password != null && input.password !== '') {
-      const hashedPass = await hashPassword(input.password, 'while publishing form. inside form.ts file')
-      updates.password = hashedPass
+    const hashedPass = await hashPassword(
+      input.password,
+      'while publishing form. inside form.ts file'
+    )
+    updates.password = hashedPass
   }
 
   if (input.expiresAt != null) {
