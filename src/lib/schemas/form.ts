@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import { errorResponse, successResponse } from '@utils/responses'
+import { errorResponse, successResponse } from '@/lib/utils/apiResponse'
 
 const blockDataSchema = z
   .object({
@@ -52,6 +52,8 @@ export const formSchema = z.object({
   blocks: blockSchema,
   description: z.string().optional(),
   published: z.boolean().optional(),
+  password: z.string().nullable().optional(),
+  expiresAt: z.date().nullable().optional(),
   settings: settingsSchema,
 })
 

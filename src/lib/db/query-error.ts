@@ -1,5 +1,5 @@
 // @services/connectToDatabase.ts
-import { ApiResponse, errorResponse, failedResponse } from '@utils/responses'
+import { ApiResponse, errorResponse, failedResponse } from '@/lib/utils/apiResponse'
 import { Prisma } from '@prisma/client'
 
 export function handleQueryError(

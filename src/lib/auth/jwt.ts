@@ -3,8 +3,8 @@ import {
   accessSecretKey,
   failedResponse,
   refreshSecretKey,
-} from '../utils/responses'
-import { errorResponse, ApiResponse } from '@/lib/utils/responses'
+} from '../utils/apiResponse'
+import { errorResponse, ApiResponse } from '@/lib/utils/apiResponse'
 import { JwtPayload } from 'jsonwebtoken'
 interface accessTokenPayload {
   email: string

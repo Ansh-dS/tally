@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import { errorResponse } from '@utils/responses'
-import { ApiResponse } from '@utils/responses'
+import { errorResponse } from '@/lib/utils/apiResponse'
+import { ApiResponse } from '@/lib/utils/apiResponse'
 interface authInput {
   email: string
   password: string

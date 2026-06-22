@@ -3,7 +3,7 @@ import {
   failedResponse,
   successResponse,
   ApiResponse,
-} from '@/lib/utils/responses'
+} from '@/lib/utils/apiResponse'
 import { validateSession } from '@auth/session'
 
 /**
