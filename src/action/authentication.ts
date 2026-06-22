@@ -7,7 +7,7 @@ import {
   successResponse,
   loginSuccessResponse,
   LoginResponseData,
-} from '@/lib/utils/responses'
+} from '@/lib/utils/apiResponse'
 import { generateRefreshToken, generateAccessToken } from '@auth/jwt'
 import { prismaClient } from '@db/client'
 import { verifyPassword } from '@utils/hash'
@@ -42,7 +42,7 @@ export async function signupHandler(payload: {
   let record: { id: string; email: string }
   try {
     // 1. encrypting the password
-    const hashedPassword = await hashPassword(password)
+    const hashedPassword = await hashPassword(password, signupPath)
 
     // as already connected with database.
     // 2. create a new user entry.

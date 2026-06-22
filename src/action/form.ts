@@ -13,9 +13,10 @@ import {
   ApiResponse,
   failedResponse,
   successResponse,
-} from '@/lib/utils/responses'
+} from '@/lib/utils/apiResponse'
 import { handleQueryError } from '@/lib/db/query-error'
 import { revalidatePath } from 'next/cache'
+import hashPassword from '@utils/hash'
 
 export async function createForm(
   input: createInputs,
@@ -103,6 +104,65 @@ export async function updateForm(input: updateInputs, path: string) {
       statusCode: 200,
       message: 'Form updated successfully',
       path: path,
+    })
+  } catch (err) {
+    return handleQueryError(err, path)
+  }
+}
+
+export async function publishForm(
+  input: {
+    formId: string
+    password?: string | null
+    expiresAt?: Date | null
+  },
+  path: string
+) {
+  const authRes = await protectApiRoute(path)
+  if (authRes.status === 'failed' || authRes.status === 'error') return authRes
+
+
+
+  const user = authRes.data as AuthorizedUser
+  const updates: {
+    published: boolean
+    password?: string
+    expiresAt?: Date | null
+  } = { published: true }
+
+  if (input.password != null && input.password !== '') {
+      const hashedPass = await hashPassword(input.password, 'while publishing form. inside form.ts file')
+      updates.password = hashedPass
+  }
+
+  if (input.expiresAt != null) {
+    updates.expiresAt = input.expiresAt
+  }
+
+  try {
+    const result = await prismaClient.form.updateMany({
+      data: updates,
+      where: {
+        id: input.formId,
+        userId: user.id,
+      },
+    })
+
+    if (result.count === 0) {
+      return failedResponse({
+        statusCode: 404,
+        message: 'Record to publish not found.',
+        path,
+      })
+    }
+
+    revalidatePath('/dashboard', 'page')
+    revalidatePath(`/forms/${input.formId}/edit`, 'page')
+
+    return successResponse({
+      statusCode: 200,
+      message: 'Form published successfully',
+      path,
     })
   } catch (err) {
     return handleQueryError(err, path)

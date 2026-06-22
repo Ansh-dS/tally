@@ -38,6 +38,14 @@ export interface OtherSettings {
   saveButton: {
     isLoading: boolean
     setLoading: (loading: boolean) => void
+  },
+  formPassword:{
+    password: string |null
+    setFormPassword: (newPassword:string)=> void
+  } 
+  formExpDate:{
+    expDate: Date | null
+    setExpDate: (newDate:Date)=> void 
   }
 }
 
@@ -81,6 +89,19 @@ export const useStore = create<storeData>((set) => ({
       }))
     },
   },
+  formExpDate:{
+    expDate:null,
+    setExpDate:(newExpDate:Date)=>{
+      set((state)=>({formExpDate:{...state.formExpDate, expDate: newExpDate}}))
+    },
+  },
+  formPassword: {
+    password:null,
+     setFormPassword:(password:string)=>{
+      set((state)=>({formPassword: {...state.formPassword, password}}))
+    }
+  },
+
   // we are saying our data would be stored in an array of json where each json have the below type.
   addBlock: (type, label) => {
     // state: contains all the outputs(storeData)

@@ -6,12 +6,12 @@ import {
   errorResponse,
   failedResponse,
   successResponse,
-} from '@utils/responses'
+} from '@/lib/utils/apiResponse'
 import { jobQueue } from '@/lib/redis/redis-Queue'
 import { protectApiRoute } from '@auth/authorization'
 import { tryRefreshToken } from '@auth/session'
 import type { FormBlock, FormHeader } from '@utils/store'
-import type { ApiResponse } from '@utils/responses'
+import type { ApiResponse } from '@/lib/utils/apiResponse'
 import { prismaClient } from '@db/client'
 import type { AuthorizedUser } from '@actions/dashboard'
 
