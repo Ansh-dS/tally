@@ -1,14 +1,7 @@
-import React, { ComponentType } from 'react'
-import {
-  Card,
-  CardContent,
-} from '@primitives/Card/Card'
+import type { ComponentType } from 'react'
+import { Card, CardContent } from '@primitives/Card/Card'
 import { Stack } from '@primitives/Stack/Stack'
 import { Stat } from '../../../components/ui/Stat/Stat'
-
-import { Text } from '@primitives/Text/Text'
-
-import type { ComponentType } from 'react'
 
 type StatCardProps = {
   label: string
