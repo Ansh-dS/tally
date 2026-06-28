@@ -18,6 +18,7 @@ import { Stack } from '@primitives/Stack/Stack'
 import { Text } from '@primitives/Text/Text'
 import { Box } from '@primitives/Box/Box'
 import { Sheet } from '@primitives/Sheet/Sheet'
+import { Sidebar, SidebarItem } from '@primitives/Sidebar/Sidebar'
 
 import {
   BarChart3,
@@ -71,37 +72,32 @@ export default function EditorResultPage() {
   const [assistantOpen, setAssistantOpen] = useState(true)
 
   return (
-    <Box className="relative flex h-full min-h-0 w-full overflow-hidden bg-slate-950 text-slate-100">
-      <Box as="aside" className="flex w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-950">
+    <Box className="relative overflow-x-hidden flex h-full min-h-0 w-full  border-0">
+      <Sidebar
+        position="left"
+        size={'narrow'}
+        footer={
+          <Box className="mx-4 mt-auto mb-4 border border-brand/30 bg-brand/10 p-4">
+            <Stack gap="sm">
+              <Text variant="label" weight="semibold" className='flex-wrap'>
+                Pro Limits Active
+              </Text>
+              <Text variant="caption" color="secondary" >
+                Upgrade to unlock deeper tagging, unlimited exports, and team seats.
+              </Text>
+              <Button variant="outline" size="sm" startIcon={<Plus />} fullWidth>
+                Upgrade Workspace
+              </Button>
+            </Stack>
+          </Box>
+        }
+      >
         <Stack gap="sm" className="p-4">
           {sidebarItems.map(({ icon: Icon, label, active }) => (
-            <Button
-              key={label}
-              variant={active ? 'primary' : 'secondary'}
-              size="sm"
-              startIcon={<Icon />}
-              className="justify-start"
-              fullWidth
-            >
-              {label}
-            </Button>
+            <SidebarItem key={label} icon={<Icon />} label={label} active={active} />
           ))}
         </Stack>
-
-        <Box className="mx-4 mt-auto mb-4 border border-brand/30 bg-brand/10 p-4">
-          <Stack gap="none">
-            <Text variant="label" weight="semibold">
-              Pro Limits Active
-            </Text>
-            <Text variant="caption" color="secondary">
-              Upgrade to unlock deeper tagging, unlimited exports, and team seats.
-            </Text>
-            <Button variant="outline" size="sm" startIcon={<Plus />} fullWidth>
-              Upgrade Workspace
-            </Button>
-          </Stack>
-        </Box>
-      </Box>
+      </Sidebar>
 
 
       <Box className="rounded-none border-0 border-b border-slate-800 bg-slate-900/30 px-6 py-6">
