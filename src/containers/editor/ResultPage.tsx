@@ -1,7 +1,7 @@
 'use client'
 
-import type { ComponentType } from 'react'
-import { useMemo, useState } from 'react'
+
+import { useState } from 'react'
 
 import { Alert } from '@primitives/Alert/Alert'
 import {
@@ -71,8 +71,8 @@ export default function EditorResultPage() {
   const [assistantOpen, setAssistantOpen] = useState(true)
 
   return (
-    <div className="relative flex h-full min-h-0 w-full overflow-hidden bg-slate-950 text-slate-100">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-950">
+    <Box className="relative flex h-full min-h-0 w-full overflow-hidden bg-slate-950 text-slate-100">
+      <Box as="aside" className="flex w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-950">
         <Stack gap="sm" className="p-4">
           {sidebarItems.map(({ icon: Icon, label, active }) => (
             <Button
@@ -101,7 +101,7 @@ export default function EditorResultPage() {
             </Button>
           </Stack>
         </Box>
-      </aside>
+      </Box>
 
 
       <Box className="rounded-none border-0 border-b border-slate-800 bg-slate-900/30 px-6 py-6">
@@ -247,6 +247,6 @@ export default function EditorResultPage() {
           </Box>
         </Stack>
       </Sheet>
-    </div>
+    </Box>
   )
 }
