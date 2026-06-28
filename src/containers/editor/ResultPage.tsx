@@ -82,7 +82,7 @@ export default function EditorResultPage() {
               <Text variant="label" weight="semibold" className='flex-wrap'>
                 Pro Limits Active
               </Text>
-              <Text variant="caption" color="secondary" >
+              <Text variant="caption" color="secondary" className="break-words max-w-full">
                 Upgrade to unlock deeper tagging, unlimited exports, and team seats.
               </Text>
               <Button variant="outline" size="sm" startIcon={<Plus />} fullWidth>
