@@ -2,7 +2,7 @@
 
 import type { ComponentType } from 'react'
 import { useMemo, useState } from 'react'
-import { Avatar } from '@primitives/Avatar/Avatar'
+
 import { Alert } from '@primitives/Alert/Alert'
 import {
   Card,
@@ -13,11 +13,11 @@ import {
 } from '@primitives/Card/Card'
 import { Button } from '@primitives/Button/Button'
 import { Input } from '@primitives/Input/Input'
-import { Spinner } from '@primitives/Spinner/Spinner'
+
 import { Stack } from '@primitives/Stack/Stack'
 import { Text } from '@primitives/Text/Text'
 import { Box } from '@primitives/Box/Box'
-import { Sheet } from '@primitives/sheet/sheet'
+import { Sheet } from '@primitives/Sheet/Sheet'
 
 import {
   BarChart3,
@@ -30,6 +30,11 @@ import {
   TrendingUp,
   X,
 } from 'lucide-react'
+
+import StatCard from './components/StatCard'
+import DonutChart from './components/DonutChart'
+import TimelineChart from './components/TimelineChart'
+import IntentChart from './components/IntentChart'
 
 const sidebarItems = [
   { icon: Sparkles, label: 'AI Insights', active: true },
@@ -61,126 +66,6 @@ const spikePoints = [
   { label: 'Sun', value: 58 },
 ]
 
-function StatCard({
-  label,
-  value,
-  delta,
-  icon: Icon,
-}: {
-  label: string
-  value: string
-  delta: string
-  icon: ComponentType<{ size?: number; className?: string }>
-}) {
-  return (
-    <Card elevation="none" padding="sm" className="min-w-0">
-      <CardContent className="gap-3">
-        <Stack direction="horizontal" align="center" className="justify-between">
-          <Text variant="label" color="secondary" className="uppercase tracking-[0.16em]">
-            {label}
-          </Text>
-          <Icon size={16} className="text-fg-secondary" />
-        </Stack>
-        <Text as="div" variant="display" weight="bold">
-          {value}
-        </Text>
-        <Stack direction="horizontal" align="center" gap="xs">
-          <TrendingUp size={14} className="text-status-success" />
-          <Text variant="caption" color="success">
-            {delta}
-          </Text>
-        </Stack>
-      </CardContent>
-    </Card>
-  )
-}
-
-function DonutChart() {
-  const sweep = useMemo(
-    () =>
-      sentimentSegments.reduce((acc, segment, index) => {
-        const start = acc.total
-        acc.total += segment.value
-        acc.parts.push(`${segment.color} ${start}% ${acc.total}%`)
-        return acc
-      },
-        { total: 0, parts: [] as string[] }),
-    []
-  )
-
-  return (
-    <Box className="flex min-h-[220px] flex-col items-center justify-center gap-4 border-0 bg-transparent">
-      <div
-        className="h-40 w-40 rounded-full border border-border-default"
-        style={{
-          background: `conic-gradient(${sweep.parts.join(', ')})`,
-        }}
-      />
-      <Stack direction="horizontal" gap="sm" className="flex-wrap justify-center">
-        {sentimentSegments.map((segment) => (
-          <Stack key={segment.label} direction="horizontal" align="center" gap="xs">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: segment.color }} />
-            <Text variant="caption" color="secondary">
-              {segment.label} {segment.value}%
-            </Text>
-          </Stack>
-        ))}
-      </Stack>
-    </Box>
-  )
-}
-
-function TimelineChart() {
-  const max = Math.max(...spikePoints.map((point) => point.value))
-
-  return (
-    <Stack gap="sm" className="min-h-[220px] justify-end">
-      <div className="flex h-44 items-end gap-3">
-        {spikePoints.map((point) => (
-          <div key={point.label} className="flex min-w-0 flex-1 flex-col items-center gap-2">
-            <div className="flex h-32 w-full items-end">
-              <div
-                className="w-full rounded-t-md bg-gradient-to-t from-brand/50 to-brand"
-                style={{ height: `${(point.value / max) * 100}%` }}
-              />
-            </div>
-            <Text variant="caption" color="secondary">
-              {point.label}
-            </Text>
-          </div>
-        ))}
-      </div>
-      <Text variant="caption" color="secondary">
-        Spike in intent after pricing emails and office-hours reminders.
-      </Text>
-    </Stack>
-  )
-}
-
-function IntentChart() {
-  return (
-    <Stack gap="md">
-      {intentBars.map((bar) => (
-        <Stack key={bar.label} gap="none">
-          <Stack direction="horizontal" align="center" className="justify-between">
-            <Text variant="caption" weight="semibold">
-              {bar.label}
-            </Text>
-            <Text variant="caption" color="secondary">
-              {bar.value}%
-            </Text>
-          </Stack>
-          <div className="h-3 rounded-full bg-slate-800">
-            <div
-              className="h-3 rounded-full bg-gradient-to-r from-brand to-accent"
-              style={{ width: `${bar.value}%` }}
-            />
-          </div>
-        </Stack>
-      ))}
-    </Stack>
-  )
-}
 
 export default function EditorResultPage() {
   const [assistantOpen, setAssistantOpen] = useState(true)
@@ -204,7 +89,7 @@ export default function EditorResultPage() {
         </Stack>
 
         <Box className="mx-4 mt-auto mb-4 border border-brand/30 bg-brand/10 p-4">
-          <Stack gap="xs">
+          <Stack gap="none">
             <Text variant="label" weight="semibold">
               Pro Limits Active
             </Text>
@@ -250,7 +135,7 @@ export default function EditorResultPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <IntentChart />
+            <IntentChart bars={intentBars} />
           </CardContent>
         </Card>
 
@@ -261,7 +146,7 @@ export default function EditorResultPage() {
               <CardDescription>Overall mood split across all completions.</CardDescription>
             </CardHeader>
             <CardContent>
-              <DonutChart />
+              <DonutChart segments={sentimentSegments} />
             </CardContent>
           </Card>
 
@@ -271,7 +156,7 @@ export default function EditorResultPage() {
               <CardDescription>Traffic clusters around deadlines and reminders.</CardDescription>
             </CardHeader>
             <CardContent>
-              <TimelineChart />
+              <TimelineChart points={spikePoints} />
             </CardContent>
           </Card>
         </Stack>
@@ -304,7 +189,7 @@ export default function EditorResultPage() {
         <Stack gap="none" className="h-full">
           <Box className="rounded-none border-0 border-b border-slate-800 bg-slate-950/70 p-4">
             <Stack direction="horizontal" align="center" gap="sm" className="justify-between">
-              <Stack gap="xs">
+              <Stack gap="none">
                 <Text variant="label" weight="semibold">
                   AI Data Assistant Copilot
                 </Text>
