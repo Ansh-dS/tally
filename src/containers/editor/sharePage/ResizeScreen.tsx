@@ -146,6 +146,7 @@ export default function FlexibleScreen() {
               key={block.id}
               block={block}
               questionNumber={index}
+              visitorDetails={null}
             />
           ))}
         </Stack>

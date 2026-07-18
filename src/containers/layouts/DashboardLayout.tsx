@@ -1,5 +1,6 @@
 import { getDashboardData } from '@utils/data-fetchers'
 import DashboardLayoutUI from '@/containers/layouts/DashboardLayoutUI'
+import { getDropOffAlerts } from '@/lib/utils/data-fetchers'
 
 export default async function DashboardLayout({
   children,
@@ -7,7 +8,18 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   // use cache: The layout fetches the user data once for the sidebar/header
-  const { userData } = await getDashboardData('./forms')
+  const { userData, formsData } = await getDashboardData('./forms')
+  const dropOffs = await getDropOffAlerts(userData.id)
 
-  return <DashboardLayoutUI userData={userData}>{children}</DashboardLayoutUI>
+  const formsCount = formsData ? formsData.length : 0
+
+  return (
+    <DashboardLayoutUI
+      userData={userData}
+      dropOffs={dropOffs}
+      formsCount={formsCount}
+    >
+      {children}
+    </DashboardLayoutUI>
+  )
 }

@@ -1,0 +1,9 @@
+{
+  "errorType": "SyntaxError",
+  "errorMessage": "Expected property name or '}' in JSON at position 1",
+  "trace": [
+    "SyntaxError: Expected property name or '}' in JSON at position 1",
+    "    at JSON.parse (<anonymous>)",
+    "    at Runtime.handleOnceNonStreaming (file:///var/runtime/index.mjs:1307:18)"
+  ]
+}

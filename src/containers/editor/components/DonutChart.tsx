@@ -12,13 +12,15 @@ type DonutChartProps = {
 export default function DonutChart({ segments }: DonutChartProps) {
   const sweep = useMemo(
     () =>
-      segments.reduce((acc, segment) => {
-        const start = acc.total
-        acc.total += segment.value
-        acc.parts.push(`${segment.color} ${start}% ${acc.total}%`)
-        return acc
-      },
-        { total: 0, parts: [] as string[] }),
+      segments.reduce(
+        (acc, segment) => {
+          const start = acc.total
+          acc.total += segment.value
+          acc.parts.push(`${segment.color} ${start}% ${acc.total}%`)
+          return acc
+        },
+        { total: 0, parts: [] as string[] }
+      ),
     [segments]
   )
 
@@ -30,10 +32,22 @@ export default function DonutChart({ segments }: DonutChartProps) {
           background: `conic-gradient(${sweep.parts.join(', ')})`,
         }}
       />
-      <Stack direction="horizontal" gap="sm" className="flex-wrap justify-center">
+      <Stack
+        direction="horizontal"
+        gap="sm"
+        className="flex-wrap justify-center"
+      >
         {segments.map((segment) => (
-          <Stack key={segment.label} direction="horizontal" align="center" gap="xs">
-            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: segment.color }} />
+          <Stack
+            key={segment.label}
+            direction="horizontal"
+            align="center"
+            gap="sm"
+          >
+            <span
+              className="h-2.5 w-2.5 rounded-full"
+              style={{ backgroundColor: segment.color }}
+            />
             <Text variant="caption" color="secondary">
               {segment.label} {segment.value}%
             </Text>

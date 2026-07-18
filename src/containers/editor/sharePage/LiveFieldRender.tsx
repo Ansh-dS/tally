@@ -11,6 +11,10 @@ import { Alert } from '@primitives/Alert/Alert'
 import { TextArea } from '@primitives/TextArea/TextArea'
 import { FormBlock } from '@utils/store'
 import type { FieldValues, UseFormRegister } from 'react-hook-form'
+import {
+  cacheVisitorAndEnqueueJob,
+  type VisitorTokenInput,
+} from '@/lib/redis/visitor'
 
 // use registor here:
 export function LiveFieldRenderer({
@@ -18,13 +22,20 @@ export function LiveFieldRenderer({
   disabled = false,
   questionNumber,
   register,
+  visitorDetails,
 }: {
   block: FormBlock
   disabled?: boolean
   questionNumber: number
   register?: UseFormRegister<FieldValues>
+  visitorDetails: VisitorTokenInput | null
 }) {
   const { type, label, required, data } = block
+
+  function syncVisitorProgress() {
+    if (!visitorDetails?.visitorId) return
+    void cacheVisitorAndEnqueueJob(visitorDetails, `q${questionNumber}`)
+  }
 
   function registerAnswers() {
     if (!register) return {}
@@ -64,6 +75,9 @@ export function LiveFieldRenderer({
             size={'md'}
             placeholder={data?.placeholder || 'Your answer'}
             disabled={disabled}
+            onBlur={() => {
+              syncVisitorProgress()
+            }}
           />
         </Box>
       )
@@ -78,6 +92,9 @@ export function LiveFieldRenderer({
             rows={4}
             disabled={disabled}
             {...registerAnswers()}
+            onBlur={() => {
+              syncVisitorProgress()
+            }}
           />
         </Box>
       )
@@ -93,6 +110,9 @@ export function LiveFieldRenderer({
                 key={idx}
                 label={opt}
                 disabled={disabled}
+                onBlur={() => {
+                  syncVisitorProgress()
+                }}
               />
             ))}
           </Stack>
@@ -110,6 +130,9 @@ export function LiveFieldRenderer({
                 key={idx}
                 label={opt}
                 disabled={disabled}
+                onBlur={() => {
+                  syncVisitorProgress()
+                }}
               />
             ))}
           </Stack>
@@ -134,6 +157,9 @@ export function LiveFieldRenderer({
             {...registerAnswers()}
             options={selectOptions}
             disabled={disabled}
+            onBlur={() => {
+              syncVisitorProgress()
+            }}
           />
         </Box>
       )
@@ -152,6 +178,9 @@ export function LiveFieldRenderer({
               {...registerAnswers()}
               checked={data?.defaultChecked || false}
               disabled={disabled}
+              onBlur={() => {
+                syncVisitorProgress()
+              }}
             />
           </Stack>
         </Box>

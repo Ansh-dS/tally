@@ -15,7 +15,10 @@ export default function TimelineChart({ points }: TimelineChartProps) {
     <Stack gap="sm" className="min-h-[220px] justify-end">
       <div className="flex h-44 items-end gap-3">
         {points.map((point) => (
-          <div key={point.label} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+          <div
+            key={point.label}
+            className="flex min-w-0 flex-1 flex-col items-center gap-2"
+          >
             <div className="flex h-32 w-full items-end">
               <div
                 className="w-full rounded-t-md bg-gradient-to-t from-brand/50 to-brand"

@@ -1,11 +1,7 @@
-'use client'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+'use server'
+import { redirect } from 'next/navigation'
 
-export default function Page() {
-  const router = useRouter()
-  useEffect(() => {
-    router.replace('/forms')
-  }, [router])
-  return null // so is any case it won't break the code.
+export default async function Page() {
+  // Use a fast, native server-side redirect instead of loading a client-side useEffect
+  redirect('/forms')
 }
