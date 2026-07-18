@@ -101,3 +101,4 @@ export function successResponse<T = unknown>(
 
 export const accessSecretKey = process.env.JWT_ACCESS_TOKEN_SECRET as string
 export const refreshSecretKey = process.env.JWT_REFRESH_TOKEN_SECRET as string
+export const visitorSecretKey = process.env.VISITOR_SERCRET_KEY as string
