@@ -19,17 +19,7 @@ import { handleQueryError } from '@/lib/db/query-error'
 const loginPath = 'api/auth/login'
 const signupPath = '/api/auth/signup'
 
-/**
- * USER FLOW: complete user registration flow using different functions. 
-    How? 
-      Step 1: Hashes the provided password for secure storage.
-      Step 2: Creates a new user record in the database.
-      Step 3: Generates new Access and Refresh tokens for the user.
-      Step 4: Stores the Refresh token in the database to establish a persistent session.
-      Step 5: Sets secure HTTP-only cookies for both tokens.
-    Output: Returns a successResponse with the user's email, or a failedResponse on database errors.
- */
-
+// Register a new user and generate a new session.
 // does NOT produce an HTTP response just returns data.
 export async function signupHandler(payload: {
   email: string
@@ -37,15 +27,12 @@ export async function signupHandler(payload: {
 }): Promise<Partial<ApiResponse>> {
   const { email, password } = payload
 
-  // email doesn't already exists.
-  // store email and password.
   let record: { id: string; email: string }
   try {
-    // 1. encrypting the password
+    // Step 1: Hash the provided password for secure storage.
     const hashedPassword = await hashPassword(password, signupPath)
 
-    // as already connected with database.
-    // 2. create a new user entry.
+    // Step 2: Create a new user record in the database.
     record = await prismaClient.user.create({
       data: {
         email: email,
@@ -57,15 +44,15 @@ export async function signupHandler(payload: {
     return handleQueryError(err, signupPath)
   }
 
-  // 3. generating a refresh token
+  // Step 3: Generate new cryptographically signed Access and Refresh tokens for the user.
   const refreshToken = generateRefreshToken({ userId: record.id })
   const accessToken = generateAccessToken({
     email: email,
     userId: record.id,
   })
 
-  // 4. store tokens as cookie
   try {
+    // Step 4: Store the Refresh token in the database to establish a persistent session.
     // storing refresh token in database.
     // {connect: { id:xyx }} a way to add foriegn key.
     // "id" not "userId" as recomended
@@ -77,7 +64,7 @@ export async function signupHandler(payload: {
       },
     })
 
-    // 5. HTTP cookies for both.
+    // Step 5: Set secure HTTP-only cookies for both tokens and return success.
     await refreshTokenCookie(refreshToken)
     await accessTokenCookie(accessToken)
 
@@ -93,22 +80,13 @@ export async function signupHandler(payload: {
   }
 }
 
-/**
- * Goal: Authenticates an existing user and establishes a new session.
-    How? 
-      Step 1: Validates the incoming email/password payload schema.
-      Step 2: Looks up the user in the database by email.
-      Step 3: Compares the provided password against the stored hash.
-      Step 4: Generates new Access and Refresh tokens.
-      Step 5: Creates a new session record in the database and sets secure cookies.
-    Output: Returns a loginSuccessResponse with user ID/email, or an errorResponse for invalid credentials.
- */
-
+// Authenticate an existing user and establish a new session.
 // does NOT produce an HTTP response just returns data.
 export async function loginHandler(payload: {
   email: string
   password: string
 }): Promise<Partial<ApiResponse> | Partial<ApiResponse<LoginResponseData>>> {
+  // Step 1: Validate the incoming email/password payload schema.
   const res = authSchema.safeParse(payload)
 
   if (!res.success) {
@@ -122,7 +100,8 @@ export async function loginHandler(payload: {
   const { email, password } = payload
 
   try {
-    //checking wheather already a user or not
+    // Step 2: Look up the user in the database by email.
+    // checking whether already a user or not
     const user = await prismaClient.user.findUnique({
       where: {
         email: email,
@@ -132,19 +111,28 @@ export async function loginHandler(payload: {
     // checking email and password.
     // not the user.
     if (!user) {
-      const err = errorResponse({
+      return errorResponse({
         statusCode: 400,
         message: 'Invalid credentials',
         path: loginPath,
       })
       // redirect to the signup.
       // may going to use server action
-
-      return err
     }
 
-    // email exists and verfifying further details.
-    // Comparing passwords and it's after effects. s
+    // Step 3: Compare the provided password against the stored hash.
+    // Guard: Google-only accounts have no password — direct them to OAuth.
+    if (!user.password) {
+      return errorResponse({
+        statusCode: 400,
+        message:
+          'This account uses Google Sign-In. Please click "Continue with Google" to log in.',
+        path: loginPath,
+      })
+    }
+
+    // email exists and verifying further details.
+    // Comparing passwords and it's after effects.
     const isPasswordMatches = await verifyPassword(password, user.password)
     if (!isPasswordMatches) {
       return errorResponse({
@@ -153,9 +141,12 @@ export async function loginHandler(payload: {
         path: loginPath,
       })
     }
+
+    // Step 4: Generate new cryptographically signed Access and Refresh tokens.
     const accessToken = generateAccessToken({ email: email, userId: user.id })
     const refreshToken = generateRefreshToken({ userId: user.id })
 
+    // Step 5: Create a new session record in the database and set secure cookies.
     await prismaClient.session.create({
       data: {
         token: refreshToken,

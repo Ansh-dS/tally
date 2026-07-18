@@ -1,121 +1,170 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-
 generator client {
   provider = "prisma-client-js"
 }
-
 
 datasource db {
   provider = "postgresql"
 }
 
 
-
 // stores profile of a user 
-model User{ 
-  id          String      @id @default(cuid())
-  password    String
-  email       String      @unique
+model User { 
+  id          String   @id @default(cuid())
+  password    String?  // null for Google-only accounts
+  email       String   @unique
   lastName    String?
   firstName   String?
   avatar      String? 
-  plan        String      @default("free")
+  plan        String   @default("free")
 
-  //Relations
-  sessions    Session[]
-  forms       Form[]
+  // Relations
+  sessions       Session[]
+  forms          Form[]
+  userInsight    UserInsight[]   // one user could have multiple insights
   
-  //Basics
-  createdAt     DateTime  @default(now())
+  // Basics
+  createdAt   DateTime @default(now())
 
-  //making search easy. 
+  // making search easy. 
   @@index([email])
-
-  // Use this line to make the database table lowercase 'users'
   @@map("users")
-
-
 }
 
 
 // each row is an authentication session.
 // storing JWT for authentication with expiration.  
-model Session{
-  id          String      @id @default(cuid())
-  token       String      @unique @db.Text
-  userId      String         // foriegn key. 
+model Session {
+  id          String   @id @default(cuid())
+  token       String   @unique @db.Text
+  userId      String   // foreign key. 
   expiresAt   DateTime  
 
-  //Relations
-  user  User  @relation(fields:[userId], references:[id],onDelete: Cascade  )
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  //Basics
-  createdAt     DateTime  @default(now())
+  // Basics
+  createdAt   DateTime @default(now())
 
-  //making search easy. 
+  // making search easy. 
   @@index([userId])
   @@index([token])
-
-  // Use this line to make the database table lowercase 'users'
   @@map("sessions")
 }
 
 
 // Form data created by a user  
-model Form{ 
-  id          String      @id @default(cuid())  // removed "publishedUrl" and only storing the fromId(slug). we are safe even if domain name changes.
-  title         String 
-  description   String? 
-  blocks        Json                        // what field a "x" user contains?
-  settings      Json                        // Additional configuration
-  published     Boolean     @default(false) // can we see form or not as if we editing then users can't see this form. 
-  userId        String
-  password       String?                    // Hashed password: should be filled by every person before filling the form. we don't data from everybody (organizations). 
-  expiresAt      DateTime?                 // For the "Close on specific date" feature
+model Form { 
+  id          String    @id @default(cuid()) 
+  title       String 
+  description String? 
+  blocks      Json      // what field a "x" user contains?
+  settings    Json      // Additional configuration
+  published   Boolean   @default(false) 
+  userId      String
+  password    String?   // Hashed password for private forms
+  expiresAt   DateTime? // For the "Close on specific date" feature
 
   // Relations
-  author User @relation(fields: [userId] , references: [id], onDelete:Cascade ) // Whenever a User record is deleted, all related records in the table 
-  submissions   Response[]
+  author         User            @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  submissions    Response[]
+  formInsight    FormInsight?    // 1-to-1 relation for Feature 2 (Intent Tagging)
+  formVisitors   FormVisitor[]     // each form could have multiple visitors 
+
 
   // Basics
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  //making search easy. 
+  // making search easy: index only that things which we are going to serach. 
   @@index([userId])
   @@index([published])
-
-  // Use this line to make the database table lowercase 'users'
   @@map("forms")
 }
 
 
 // contains data and insights about data 
-model Response{ 
-  id          String         @id @default(cuid())
-  data          Json
-  summary       String?                             //AI-generated summary 
-  score         Int?                                //Lead quality score out of 100. 
-  formId        String           
-  ipAddress     String?                             // To prevent spam/duplicate submissions.
-  userAgent     String?                             // Information about user's operating system and their browser used to visit our site. 
+model Response { 
+  id          String   @id @default(cuid())
+  data        Json
+  summary     String?  // AI-generated summary for this SPECIFIC response 
+  score       Int?     // Lead quality score out of 100
+  formId      String             
+  ipAddress   String?  // To prevent bot attacks and to get users location (like delhi or exactly where user is. )
+  userAgent   String?  // Information about user's operating system and browser
 
   // Relations
-  form Form @relation(fields:[formId], references: [id],onDelete: Cascade)
+  form        Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
 
   // Basics
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  //making search easy. 
+  // making search easy. 
   @@index([formId])
   @@index([createdAt])
-
-  // Use this line to make the database table lowercase 'users'
   @@map("responses")
+}
+
+
+// Dashboard DropOff data
+// we are building a time series data, where we create new "globalMetrics" for same userId, if new responses come
+// we are storing them in decending order wrt date created. 
+model UserInsight {
+  id              String   @id @default(cuid())
+  userId          String  
+  aiInsight  Json?    // AI-calculated anomaly flags, drop-off rates, traffic spikes
+
+  //Basics
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  user            User     @relation(fields: [userId], references:[id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("user_insights")
+}
+
+
+// Semantic Analysis of each form.
+model FormInsight {
+  id              String   @id @default(cuid())
+  formId          String   @unique
+  globalSummary   Json?    // The AI-generated JSON categorizations/tags (e.g., Pie chart data)
+  lastAnalyzedAt  DateTime @default(now())
+  
+  // Relations
+  form            Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@map("form_insights")
+}
+
+
+
+model FormVisitor {
+  id                     String  @id @default(cuid())
+  visitorId              String  // jwt. 
+  userAgent              String?  
+  lastVisitedQuestion    String @default("q1")
+  hasSubmitted            Boolean @default(false)
+
+  // connections
+  formId      String   
+
+  // Basics
+  createdAt  DateTime   @default(now())
+
+  // relations
+  form                    Form    @relation(fields:[formId], references: [id], onDelete: Cascade)
+
+  // Prevents counting the same user twice on the same form: as we can't use '@id' twice so we use 'unique'.
+  @@unique([formId, visitorId]) 
+
+  //ease of serarching
+  @@index([formId])
+
+  @@map("form_visitors")
+
 }

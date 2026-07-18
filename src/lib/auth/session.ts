@@ -39,13 +39,11 @@ interface sessionsData {
   firstName: string
 }
 
-/**
- * Internal core function to validate tokens and database identity.
- * This is the "Single Source of Truth" for authentication logic.
- */
+// Validate tokens and database identity for authentication.
 export async function validateSessionCore(
   path: string
 ): Promise<Partial<ApiResponse<sessionsData | unknown>>> {
+  // Step 1: Retrieve the JWT Access Token from cookies.
   const accessToken = await getAuthToken('jwtAccessToken')
 
   if (!accessToken)
@@ -55,7 +53,7 @@ export async function validateSessionCore(
       path: path,
     })
 
-  // token exists so we are verify different cases there.
+  // Step 2: Cryptographically verify the token signature and expiration.
   const casesRes = resolveToken({
     token: accessToken,
     type: 'Access',
@@ -65,10 +63,9 @@ export async function validateSessionCore(
   if (casesRes?.status === 'failed' || casesRes?.status === 'error')
     return casesRes
 
-  // token verified: now check session exists in database or not.
-  // we can use redis to stop is db call each time a user asking data from a page.
-
   try {
+    // Step 3: Query the database to ensure the user still exists.
+    // we can use redis to stop is db call each time a user asking data from a page.
     const user = await prismaClient.user.findUnique({
       where: {
         id: (casesRes.data as JwtPayload).userId,
@@ -91,14 +88,7 @@ export async function validateSessionCore(
   }
 }
 
-/**
- * Evaluates the authenticated or not:
- * Step 1: Checks for the presence of Access and Refresh tokens.
- * Step 2: If an Access token exists, verifies it and retrieves basic user details from the DB.
- * Step 3: If only a Refresh token exists, flags the session as needing a token rotation.
- * Output: Returns a success payload with user data, a 'refresh_required' flag, or an 'unauthorized' failure.
- */
-
+// Evaluate if user is authenticated and handle silent refresh state.
 export async function validateSession(
   currentPath = '/dashboard'
 ): Promise<AuthCheckResult> {
@@ -155,18 +145,11 @@ async function deleteSessionByToken(token: string): Promise<void> {
   }
 }
 
-/**
- * GOAL: Performs a silent token rotation using a valid Refresh Token.
- * HOW?:
-    Step 1: Retrieves and verifies the signature of the current Refresh token.
-    Step 2: Validates the token against the active sessions stored in the database.
-    Step 3: Generates a fresh pair of Access and Refresh tokens.
-    Step 4: Updates the session in the database and overwrites the user's cookies.
- * Output: Returns success with the userId if rotated, or fails and clears cookies if the session is invalid.
- */
+// Perform a silent token rotation using a valid Refresh Token.
 export async function tryRefreshToken(
   currentPath = '/api/auth/refresh'
 ): Promise<RefreshResult> {
+  // Step 1: Retrieve and verify the signature of the current Refresh token.
   const refreshToken = await getAuthToken('jwtRefreshToken')
 
   if (!refreshToken) {
@@ -194,6 +177,7 @@ export async function tryRefreshToken(
   }
 
   try {
+    // Step 2: Validate the token against the active sessions stored in the database.
     const session = await prismaClient.session.findUnique({
       where: { token: refreshToken },
       include: {
@@ -226,12 +210,14 @@ export async function tryRefreshToken(
       return { status: 'failed', error: 'user_not_found' }
     }
 
+    // Step 3: Generate a fresh pair of Access and Refresh tokens.
     const newAccessToken = generateAccessToken({
       userId: session.user.id,
       email: session.user.email,
     })
     const newRefreshToken = generateRefreshToken({ userId: session.user.id })
 
+    // Step 4: Update the session in the database and overwrite the user's cookies.
     await prismaClient.session.update({
       where: { token: refreshToken },
       data: {

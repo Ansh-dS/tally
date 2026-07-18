@@ -6,18 +6,14 @@ import {
 } from '@/lib/utils/apiResponse'
 import { validateSession } from '@auth/session'
 
-/**
- * Verifies the user's active session. (Renamed from authorization to protectApiRoute)
- * Step 1: Retrieves the JWT Access Token from cookies.
- * Step 2: Cryptographically verifies the token's signature and validity.
- * Step 3: Queries the database to ensure the user still exists.
- * Output: Returns a successResponse with user data if valid, or a failedResponse (401/404) if unauthorized.
- */
+// Verify the user's active session.
 export async function protectApiRoute(
   path: string
 ): Promise<Partial<ApiResponse>> {
+  // Step 1: Validate session token signatures and lookup user identity.
   const result = await validateSession(path)
 
+  // Step 2: Handle token refresh requirements or authorization failures.
   if (result.status === 'error') {
     return errorResponse({
       statusCode: 401,
@@ -36,6 +32,7 @@ export async function protectApiRoute(
     })
   }
 
+  // Step 3: Return a successful authorization response if verification succeeded.
   return successResponse({
     statusCode: 200,
     message: 'Authorized',
