@@ -6,6 +6,7 @@ import { Queue } from 'bullmq'
 import { redisOptions } from '@redis/redis-connection'
 import { Prisma } from '@prisma/client'
 import { FormHeader } from '@utils/store'
+import type { VisitorProgress } from './visitor'
 
 /*
 you are saying: 
@@ -14,7 +15,7 @@ you are saying:
   2. queue have the snapshot of multiple changes along with time where-as:
       redis store the lastst changes and remove overwrites the old changes. 
 */
-interface queueInput {
+export interface formJob {
   jobId: string
   userId: string
   formData?: {
@@ -23,7 +24,34 @@ interface queueInput {
   }
 }
 
+export interface visitorJob {
+  jobId: string
+  visitorData?: VisitorProgress
+}
+
 // we need credentials here so our queue can able to connect to redis.
-export const jobQueue = new Queue<queueInput>('redisQueue', {
+export const formQueue = new Queue<formJob>('formQueue', {
   connection: redisOptions,
 })
+
+export const visitorQueue = new Queue<visitorJob>('visitorQueue', {
+  connection: redisOptions,
+})
+
+export interface AiDropOffJob {
+  userId?: string
+}
+
+export const aiDropOffsQueue = new Queue<AiDropOffJob>('ai-dropoffs-queue', {
+  connection: redisOptions,
+})
+
+// Register the repeatable cron job for the producer
+// sec, miniute, hour, everyday, month, hour=> {a, b, c, d, e, f}
+aiDropOffsQueue.add(
+  'daily-ai-dropoffs-producer',
+  {},
+  {
+    repeat: { pattern: '0 0 0 * * *' },
+  }
+)

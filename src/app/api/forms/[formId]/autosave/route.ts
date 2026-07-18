@@ -1,5 +1,6 @@
-// FAST LANE: stores the forms data to the redis and sends successfully stores data to user.
-// rest of the big process, storing data to database happens afterwards using buidlMQ.
+// Autosave endpoint: writes a form snapshot to Redis for a quick client response.
+// A background worker later reads the snapshot and persists it to the canonical DB.
+
 import redisClient from '@redis/redis-connection'
 import { NextRequest, NextResponse } from 'next/server'
 import {
@@ -7,7 +8,7 @@ import {
   failedResponse,
   successResponse,
 } from '@/lib/utils/apiResponse'
-import { jobQueue } from '@/lib/redis/redis-Queue'
+import { formQueue } from '@/lib/redis/redis-Queue'
 import { protectApiRoute } from '@auth/authorization'
 import { tryRefreshToken } from '@auth/session'
 import type { FormBlock, FormHeader } from '@utils/store'
@@ -15,108 +16,64 @@ import type { ApiResponse } from '@/lib/utils/apiResponse'
 import { prismaClient } from '@db/client'
 import type { AuthorizedUser } from '@actions/dashboard'
 
-interface formType {
+const REDIS_TTL = 86400 // 24 hours
+
+type FormSnapshot = {
   blocks: FormBlock[]
   header: FormHeader
-}
-
-/* 
-At API endpoints we can't send return our designed error/success reponses:
-    we must use "NextResponse". 
-*/
-function toRouteResponse(payload: Partial<ApiResponse>) {
-  return NextResponse.json(payload, { status: payload.statusCode ?? 200 })
+  published?: boolean
 }
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ formId: string }> }
 ) {
-  const data: formType = await req.json()
+  const snapshot = await req.json()
   const { formId } = await params
 
+  // Basic validation
+  if (!validateSnapshot(snapshot)) {
+    return toRouteResponse(
+      failedResponse({
+        data: 'Invalid autosave payload',
+        statusCode: 400,
+        path: req.nextUrl.pathname,
+      })
+    )
+  }
+
   let actualFormId = formId
-  let newlyCreatedId = null
-  console.log('reached autosave')
+  let newlyCreatedId: string | null = null
+
   try {
-    /* 
-            Why aren't we use "getAuthorizedUser" as it have "tryRefreshToken" and all the "protectApiRoute" already:
-                it contains redirects:
-                    redirects reloads our page and hence we lost zustand data.
-                    
-        
-        */
-    let authRes = await protectApiRoute(req.nextUrl.pathname)
-
-    // If token expired but refresh token exists, try to refresh silently
-    if (authRes.status === 'error') {
-      const refreshRes = await tryRefreshToken(req.nextUrl.pathname)
-      if (refreshRes.status === 'success') {
-        // Retry auth after refresh
-        authRes = await protectApiRoute(req.nextUrl.pathname)
-      }
-    }
-
-    // If auth still failed, return JSON response
-    if (authRes.status !== 'success') {
-      return toRouteResponse(authRes)
-    }
+    // authenticating user.
+    const authRes = await authenticate(req.nextUrl.pathname)
+    if (authRes.status !== 'success') return toRouteResponse(authRes)
 
     const userId = (authRes.data as AuthorizedUser).id
-    // 1. FAST PATH EXCEPTION: If 'new', create the DB row instantly
+
+    // if new form, then first create it's new entry.
     if (formId === 'new') {
-      const newForm = await prismaClient.form.create({
-        data: {
-          title: data.header?.title || 'Untitled Form',
-          description: data.header?.description,
-          blocks: JSON.stringify(data.blocks),
-          settings: {},
-          userId: userId,
-        },
-        select: { id: true },
-      })
-      actualFormId = newForm.id
-      newlyCreatedId = newForm.id // Store it to send back to frontend
+      actualFormId = await createFormIfNew(formId, snapshot, userId)
+      newlyCreatedId = actualFormId
     }
 
-    // 2. Now proceed with normal Redis Fast Lane using `actualFormId`
-    const formString = JSON.stringify(data)
-    const redisResponse = await redisClient.set(
-      `draft:form:${actualFormId}`,
-      formString,
-      'EX',
-      3600
-    )
-
-    if (redisResponse === 'OK') {
-      // 3. Send to worker using the REAL ID
-      await jobQueue.add(
-        'sync-to-database',
-        {
-          jobId: actualFormId, // This is never 'new' anymore!
-          userId: userId,
-          formData: {
-            blocks: JSON.stringify(data.blocks),
-            header: data.header,
-          },
-        },
-        { removeOnComplete: true, delay: 5000 }
-      )
-      console.log('Successfuly Added to queue')
+    // pushing job in queue and storing data in redis.
+    const redisRes = await writeSnapshotToRedis(actualFormId, snapshot)
+    if (redisRes !== 'OK') {
       return toRouteResponse(
-        successResponse({
-          data: {
-            message: 'saved',
-            newFormId: newlyCreatedId, // 4. Pass the new ID back to the client!
-          },
+        failedResponse({
+          data: 'Saving form snapshot to Redis failed',
+          statusCode: 500,
           path: req.nextUrl.pathname,
         })
       )
     }
+    await enqueueSyncJob(actualFormId, userId, snapshot)
+
     return toRouteResponse(
-      failedResponse({
-        data: 'Saving forms data to redis got failed ',
-        statusCode: 500,
+      successResponse({
+        data: { message: 'saved', newFormId: newlyCreatedId },
         path: req.nextUrl.pathname,
       })
     )
@@ -130,4 +87,92 @@ export async function POST(
       })
     )
   }
+}
+
+/**
+ * Convert internal ApiResponse into NextResponse with appropriate HTTP status.
+ */
+function toRouteResponse(payload: Partial<ApiResponse>) {
+  return NextResponse.json(payload, { status: payload.statusCode ?? 200 })
+}
+
+/**
+ * Validate minimal shape of incoming snapshot to avoid crashing the worker.
+ */
+function validateSnapshot(snapshot: unknown): snapshot is FormSnapshot {
+  if (!snapshot || typeof snapshot !== 'object') return false
+  const s = snapshot as FormSnapshot
+  return Array.isArray(s.blocks) && typeof s.header === 'object'
+}
+
+/**
+ * Authenticate request without causing browser redirects (which would disrupt editor state).
+ * other functions like getAuthorizedUser.
+ */
+async function authenticate(path: string) {
+  let authRes = await protectApiRoute(path)
+  if (authRes.status === 'error') {
+    const refreshRes = await tryRefreshToken(path)
+    if (refreshRes.status === 'success') authRes = await protectApiRoute(path)
+  }
+  return authRes
+}
+
+/**
+ * If frontend used placeholder id 'new', create a DB row immediately so future autosaves
+ * can reference a stable form id.
+ */
+async function createFormIfNew(
+  candidateId: string,
+  snapshot: FormSnapshot,
+  userId: string
+) {
+  if (candidateId !== 'new') return candidateId
+
+  const created = await prismaClient.form.create({
+    data: {
+      title: snapshot.header?.title || 'Untitled Form',
+      description: snapshot.header?.description,
+      blocks: JSON.stringify(snapshot.blocks),
+      settings: {},
+      userId,
+    },
+    select: { id: true },
+  })
+
+  return created.id
+}
+
+/**
+ * Persist snapshot to Redis with a TTL (fast, non-blocking for client).
+ */
+async function writeSnapshotToRedis(formId: string, snapshot: FormSnapshot) {
+  const wrapper = {
+    blocks: snapshot.blocks,
+    published: snapshot.published,
+    title: snapshot.header?.title || 'Untitled Form',
+    description: snapshot.header?.description,
+    header: snapshot.header, // Keeping header to not break other assumptions
+  }
+  const payload = JSON.stringify(wrapper)
+  return redisClient.set(`draft:form:${formId}`, payload, 'EX', REDIS_TTL)
+}
+
+/**
+ * Enqueue background job to persist snapshot to canonical DB.
+ */
+async function enqueueSyncJob(
+  formId: string,
+  userId: string,
+  snapshot: FormSnapshot
+) {
+  const QUEUE_DELAY_MS = 5000
+  await formQueue.add(
+    'sync-to-database',
+    {
+      jobId: formId,
+      userId,
+    },
+    { removeOnComplete: true, delay: QUEUE_DELAY_MS }
+  )
 }

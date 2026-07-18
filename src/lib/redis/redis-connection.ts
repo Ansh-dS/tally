@@ -17,7 +17,7 @@ export const redisOptions = {
 used ioredis over redis as don't need to write the logic of ".connect":
   autoConnects the stuff while making call. 
 */
-function generateClientHandler() {
+function createRedisClient() {
   const redis = new Redis(redisOptions)
   return redis
 }
@@ -26,13 +26,13 @@ function generateClientHandler() {
 we are using unkown as "global" has it's own types. 
     we first neutrilaize that type then provide ours.
 */
-const globalForRedis = global as unknown as { redisClient: Redis }
+const globalRedisClient = global as unknown as { redisClient: Redis }
 
 function generateClient() {
-  const redisClient = globalForRedis.redisClient || generateClientHandler()
+  const redisClient = globalRedisClient.redisClient || createRedisClient()
 
   if (process.env.NODE_ENV !== 'production') {
-    globalForRedis.redisClient = redisClient
+    globalRedisClient.redisClient = redisClient
   }
   return redisClient
 }
