@@ -1,5 +1,5 @@
 # 1. Use a lightweight, official Node.js image
-FROM node:20-alpine AS builder
+FROM node:lts-alpine AS builder
 
 # 2. Set the working directory inside the container
 WORKDIR /tally
