@@ -16,7 +16,7 @@ export const buttonVariants = cva(
 
     /* 3. Interaction State Rules */
     // opacity-50: standard "disabled" look across Tally/Riverside.
-    'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
+    'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:hover-none',
   ],
   {
     variants: {

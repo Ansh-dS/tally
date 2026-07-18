@@ -110,9 +110,14 @@ function LoginPageContent() {
     2.  so we can say our function gets more stable.
   */
   const handleGoogleLogin = useCallback(() => {
-    // removing the current path form the browsers stack so if we move back it doesn't reaches to tht login again.
-    router.replace('/forms')
-  }, [router])
+    // Forward the callbackUrl into the OAuth state so the user lands on
+    // the page they were originally trying to access after Google auth.
+    const callbackUrl = searchParams.get('callbackUrl') || '/forms'
+    const googleAuthUrl = `/api/auth/google?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    // Use window.location.href (full navigation) instead of router.push —
+    // the OAuth flow is a real browser redirect chain, not a client-side route.
+    window.location.href = googleAuthUrl
+  }, [searchParams])
 
   return (
     <Stack

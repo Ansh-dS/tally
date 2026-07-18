@@ -1,6 +1,7 @@
 // services/createCookies.ts
 import { cookies } from 'next/headers'
-
+import { type VisitorTokenInput } from '../redis/visitor'
+import resolveToken from './jwt'
 /**
  * Set an httpOnly access token cookie in server context (server action / server component).
  * Throws an Error if setting the cookie fails so callers can handle it.
@@ -60,6 +61,31 @@ export async function refreshTokenCookie(jwtToken: string): Promise<string> {
   }
 }
 
+export async function generateVisitorCookie(jwtToken: string): Promise<string> {
+  try {
+    if (!jwtToken) throw new Error('accessTokenCookie: jwtToken is required')
+
+    const cookieStore = await cookies()
+    cookieStore.set({
+      name: 'visitor',
+      value: jwtToken,
+      httpOnly: true, // JS can't read the cookies
+      path: '/',
+      secure: process.env.NODE_ENV === 'production', // ensure cookies are sent over HTTPS.
+      sameSite: 'lax', // reduces CSRF risk but keeps usability.
+      maxAge: 24 * 60 * 60, // in seconds => 1 day.
+    })
+
+    return 'Cookie for visitor has been created'
+  } catch (err) {
+    // Log helpful debug info and rethrow so caller can decide what to do
+    console.error('visitor - failed to set cookie:', {
+      message: (err as Error).message,
+      stack: (err as Error).stack,
+    })
+    throw new Error('Failed to set access token cookie')
+  }
+}
 /**
  * Read a cookie value from the server cookie store.
  * Returns the cookie value or null. On internal error also returns null and logs the error.
@@ -84,4 +110,33 @@ export async function getAuthToken(
     return null
   }
 }
-// these are http-only-cookie.
+
+export async function getVisitor(): Promise<VisitorTokenInput | null> {
+  try {
+    const cookieStore = await cookies()
+    const visitorToken = cookieStore.get('visitor')
+
+    if (!visitorToken) return null
+
+    // fetching the visitor our from token.
+    const res = resolveToken({
+      token: visitorToken.value,
+      type: 'Visitor',
+      path: 'submitResponse.tsx',
+    })
+
+    if (res.status === 'success') {
+      return res.data as VisitorTokenInput
+    }
+    return null
+  } catch (err) {
+    // Log the error but stay quiet to the caller
+    console.error(
+      `[CookieStore] Failed to read visitorDetails:`,
+      (err as Error).message
+    )
+
+    // means there is no cookie.
+    return null
+  }
+}

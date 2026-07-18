@@ -31,7 +31,6 @@ export async function GET(request: NextRequest) {
   if (refreshRes.status === 'success') {
     // This will redirect to http://localhost:3000/forms
     // instead of http://localhost:3000/api/auth/forms
-    console.log('success at tryRefreshToken:', finalTarget)
     return NextResponse.redirect(finalTarget)
   }
 

@@ -42,3 +42,9 @@ next-env.d.ts
 
 /generated/prisma
 pnpm-lock.yaml
+
+# Aws stuff
+aws
+.serverless
+awscliv2.zip
+localstack.log

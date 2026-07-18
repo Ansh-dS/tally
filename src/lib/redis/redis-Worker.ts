@@ -1,89 +1,108 @@
 // This is independent file which we have to start using another terminal and command.
 import { Worker, Job } from 'bullmq'
-import { Prisma } from '@prisma/client'
-import { prismaClient } from '@db/client'
-import redisClient from '@redis/redis-connection'
 import { redisOptions } from '@redis/redis-connection'
-import { handleQueryError } from '@db/query-error'
-import { FormHeader } from '@utils/store'
+import { formJob, visitorJob } from './redis-Queue'
+import { syncFormToDatabase, syncVisitorProgress } from './redis-worker-utils'
+import {
+  processAiDropOffsProducer,
+  processAiDropOffsConsumer,
+} from './aiDropOffs'
 
-type SyncJobData = {
-  jobId: string
-  userId: string
-  formData?: formType
-}
-
-interface formType {
-  /* 
-       Generic TS interfaces (like FormBlock[]) often clash with Prisma's strict internal JSON types:
-        so we use "InputJsonValue"
-    */
-  blocks: Prisma.InputJsonValue
-  header: FormHeader
-}
-console.log('OutSide: woker Started')
-// src/lib/redis/redis-worker.ts
-async function syncToDatabase(formId: string, payload?: formType) {
-  // formId is guaranteed to be a real database ID now (e.g. cuid123)
-  let form = payload
-
-  if (!form) {
-    const redisData = await redisClient.get(`draft:form:${formId}`)
-    if (!redisData) throw new Error(`WORKER: no draft found`)
-    form = JSON.parse(redisData) as formType
-  }
-  console.log('WORKER:', form)
-  console.log(`WORKER: updating form ${formId}`)
-
-  try {
-    // We just do a simple update!
-    await prismaClient.form.update({
-      where: { id: formId },
-      data: {
-        blocks: form.blocks,
-        title: form.header.title,
-        description: form.header.description,
-      },
-    })
-    console.log('Data stored successfully in database. ')
-  } catch (err) {
-    const handled = handleQueryError(err, 'src/lib/redis/redis-worker')
-    console.log('handled:', handled)
-    throw new Error(handled.message || 'WORKER: failed to update form')
-  }
-}
-
-// OUR WORKER
-export const worker = new Worker<SyncJobData>(
-  'redisQueue',
-  async (job: Job<SyncJobData>) => {
-    const { jobId, formData } = job.data // asking data from queue.
-    await syncToDatabase(jobId, formData)
+// 1. formWorker.
+const formWorker = new Worker<formJob>(
+  'formQueue',
+  async (job: Job<formJob>) => {
+    const { jobId } = job.data // asking data from queue.
+    await syncFormToDatabase(jobId)
   },
   {
     connection: redisOptions, // provding redis credentials.
-    /* 
-          autorun: false prevents the worker from starting the moment this file is imported.
-        */
+    autorun: false /* autorun: false prevents the worker from starting the moment this file is imported.*/,
+  }
+)
+
+// worker event loging.
+formWorker.on('completed', (job) => console.log('job completed', job.id))
+formWorker.on('failed', (job, err) =>
+  console.error(new Date().toISOString(), 'WORKER FAILED:', job?.id, err)
+)
+formWorker.on('error', (err) =>
+  console.error(new Date().toISOString(), 'WORKER ERROR:', err)
+)
+
+// 2. visitorWorker
+const visitorWorker = new Worker<visitorJob>(
+  'visitorQueue',
+  async (job: Job<visitorJob>) => {
+    const { visitorData } = job.data // asking data from queue.
+    await syncVisitorProgress(visitorData)
+  },
+  {
+    connection: redisOptions,
     autorun: false,
   }
 )
 
-// Basic worker event logging
-worker.on('completed', (job) => console.log('job completed', job.id))
-worker.on('failed', (job, err) =>
-  console.error(new Date().toISOString(), 'WORKER FAILED:', job?.id, err)
+visitorWorker.on('completed', (job) =>
+  console.log('visitor job completed', job.id)
 )
-worker.on('error', (err) =>
-  console.error(new Date().toISOString(), 'WORKER ERROR:', err)
+visitorWorker.on('failed', (job, err) =>
+  console.error(
+    new Date().toISOString(),
+    'VISITOR WORKER FAILED:',
+    job?.id,
+    err
+  )
 )
+visitorWorker.on('error', (err) =>
+  console.error(new Date().toISOString(), 'VISITOR WORKER ERROR:', err)
+)
+
+// 3. aiDropOffsWorker
+const aiDropOffsWorker = new Worker(
+  'ai-dropoffs-queue',
+  async (job: Job) => {
+    if (job.name === 'daily-ai-dropoffs-producer') {
+      await processAiDropOffsProducer()
+    } else if (job.name === 'daily-ai-dropoffs-consumer') {
+      const { userId } = job.data
+      if (userId) {
+        await processAiDropOffsConsumer(userId)
+      }
+    }
+  },
+  {
+    connection: redisOptions,
+    autorun: false,
+  }
+)
+
+aiDropOffsWorker.on('completed', (job) =>
+  console.log('AI DropOffs job completed', job.name, job.id)
+)
+aiDropOffsWorker.on('failed', (job, err) =>
+  console.error(
+    new Date().toISOString(),
+    'AI DROPOFFS WORKER FAILED:',
+    job?.id,
+    err
+  )
+)
+aiDropOffsWorker.on('error', (err) =>
+  console.error(new Date().toISOString(), 'AI DROPOFFS WORKER ERROR:', err)
+)
+
+/* 3. the entry point. */
 export function startWorker() {
-  worker.run().catch((err) => {
-    console.error('WORKER: failed to start', err)
+  formWorker.run().catch((err) => {
+    console.error('FORM WORKER: failed to start', err)
+  })
+  visitorWorker.run().catch((err) => {
+    console.error('VISITOR WORKER: failed to start', err)
+  })
+  aiDropOffsWorker.run().catch((err) => {
+    console.error('AI DROPOFFS WORKER: failed to start', err)
   })
 }
 
-/* 
-   the entry point. 
-*/
 startWorker()

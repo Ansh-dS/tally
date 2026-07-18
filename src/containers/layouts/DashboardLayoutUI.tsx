@@ -7,27 +7,30 @@ import type { AuthorizedUser } from '@actions/dashboard'
 import React, { useCallback, useState, Fragment } from 'react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { aiDropOffSummary } from '@/lib/ai/inputsAndOutputs'
 
 import { Stack } from '@primitives/Stack/Stack'
 import { Sidebar, SidebarItem } from '@primitives/Sidebar/Sidebar'
 import { Header } from '@primitives/Header/Header'
 import { Text } from '@primitives/Text/Text'
-import { Popover } from '@primitives/Popover/Popover'
+import { DropdownMenu } from '@/components/ui/DropDown/DropDown'
 import { Avatar } from '@primitives/Avatar/Avatar'
 import { Button } from '@primitives/Button/Button'
 import { Footer } from '@primitives/Footer/Footer'
+import { Sheet } from '@primitives/Sheet/Sheet'
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbSeparator,
   BreadcrumbLink,
 } from '@primitives/Breadcrumb/Breadcrumb'
+import { Box } from '@primitives/Box/Box'
+import { FormAlerts, type SeverityLevel } from '../Dashboard/FormAlerts'
 
 import {
   FileText,
   Layers,
   Plug,
-  HelpCircle,
   LogOut,
   Settings, // Added for Popover
   Sun, // Added for Theme
@@ -37,24 +40,20 @@ import {
   Edit3,
   List,
   BarChart, // Added for Breadcrumb mapping
+  Inbox,
   type LucideIcon,
 } from 'lucide-react'
 
 interface DashboardProps {
   userData: AuthorizedUser
+  dropOffs: aiDropOffSummary
+  formsCount: number
   children: React.ReactNode
 }
 
 const items = [
   { id: 'forms', label: 'My Forms', icon: <FileText size={18} /> },
   { id: 'templates', label: 'Templates', icon: <Layers size={18} /> },
-  { id: 'integrations', label: 'Integrations', icon: <Plug size={18} /> },
-  {
-    id: 'workspace',
-    label: 'Workspace Settings',
-    icon: <Settings size={18} />,
-  },
-  { id: 'help', label: 'Help & Support', icon: <HelpCircle size={18} /> },
 ]
 
 // 1. Mapping Object: Maps URL to their human-readable names and Lucide icons
@@ -72,12 +71,23 @@ const ROUTE_MAP: Record<string, { name: string; icon: LucideIcon }> = {
   analytics: { name: 'Analytics', icon: BarChart },
 }
 
+const notificationColor: Record<SeverityLevel | 'None', string> = {
+  Low: 'bg-status-info',
+  Medium: 'bg-status-warning',
+  High: 'bg-status-danger',
+  Critical: 'bg-status-danger',
+  None: 'bg-status-warning',
+}
+
 // we can't make entire function as async but can create some functions using async.
 export default function DashboardLayoutUI({
   userData,
+  dropOffs,
+  formsCount,
   children,
 }: DashboardProps) {
   const [activeId, setActiveId] = useState(items[0].id)
+  const [assistantOpen, setAssistantOpen] = useState(false)
 
   const { mode, setMode } = useTheme()
   const pathname = usePathname() // only provides the path over the whole URL.
@@ -138,6 +148,8 @@ export default function DashboardLayoutUI({
               onClick={() => {
                 setActiveId(item.id)
               }}
+              disabled={item.label === 'Templates' ? true : false}
+              className="disabled:hover:bg-surface-base"
             />
           )
         })}
@@ -145,30 +157,61 @@ export default function DashboardLayoutUI({
 
       {/* Main Content */}
 
-      <Stack direction={'vertical'} className="flex-1  m-s ml-0 shadow-sm">
+      <Stack direction={'vertical'} className="flex-1 m-s ml-0 ">
         {/* Header */}
         <Header
           className="h-16"
           variant={'default'}
           navPosition={'left'}
           actions={
-            <Popover
-              align="end"
-              content={
-                <Stack gap={'sm'}>
+            <Stack direction={'horizontal'} align={'center'} justify={'center'}>
+              <Box className="border-0 relative w-auto h-auto">
+                <Box
+                  className={`absolute w-3 h-3 top-3 right-3 rounded-full ${notificationColor[dropOffs.data?.severityLevel ?? 'None']}`}
+                ></Box>
+                <Button
+                  variant={'ghost'}
+                  startIcon={<Inbox />}
+                  onClick={() => setAssistantOpen(true)}
+                  size={'lg'}
+                  className="rounded-full w-13 h-13 "
+                />
+                <Sheet
+                  side="right"
+                  isOpen={assistantOpen}
+                  onClose={() => setAssistantOpen(false)}
+                  bgClassName="bg-surface-overlay/40"
+                >
+                  <FormAlerts
+                    setAssistantOpen={setAssistantOpen}
+                    dropOffs={dropOffs}
+                    formsCount={formsCount}
+                  />
+                </Sheet>
+              </Box>
+
+              <DropdownMenu
+                align="right"
+                trigger={
                   <Button
-                    fullWidth={true}
-                    variant={'secondary'}
-                    startIcon={<Settings size={16} />}
+                    variant="ghost"
+                    className="h-auto w-auto rounded-full p-0"
                   >
-                    Settings
+                    <Avatar
+                      fallback="AS"
+                      className="cursor-pointer hover:opacity-80"
+                    />
+                  </Button>
+                }
+              >
+                <Stack gap={'sm'} className="p-4">
+                  <Button fullWidth={true} variant={'secondary'} disabled>
+                    Account
                   </Button>
                   <Button
                     fullWidth={true}
                     variant={'secondary'}
-                    startIcon={
-                      mode === 'light' ? <Moon size={16} /> : <Sun size={16} />
-                    }
+                    startIcon={mode === 'light' ? <Moon /> : <Sun />}
                     onClick={() => {
                       if (mode === 'light') {
                         setMode('dark')
@@ -179,14 +222,8 @@ export default function DashboardLayoutUI({
                     children={mode === 'light' ? 'Dark Theme' : 'Light Theme'}
                   ></Button>
                 </Stack>
-              }
-              variant={'glass'}
-            >
-              <Avatar
-                fallback="AS"
-                className="cursor-pointer hover:opacity-80"
-              />
-            </Popover>
+              </DropdownMenu>
+            </Stack>
           }
           children={
             <Breadcrumb size={'md'} variant={'solid'}>

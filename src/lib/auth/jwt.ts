@@ -1,8 +1,10 @@
 import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
 import {
   accessSecretKey,
   failedResponse,
   refreshSecretKey,
+  visitorSecretKey,
 } from '../utils/apiResponse'
 import { errorResponse, ApiResponse } from '@/lib/utils/apiResponse'
 import { JwtPayload } from 'jsonwebtoken'
@@ -16,7 +18,7 @@ interface refreshTokenPayload {
 
 interface verifyTokenInput {
   token: string
-  type: 'Access' | 'Refresh'
+  type: 'Access' | 'Refresh' | 'Visitor'
   path: string
 }
 
@@ -40,11 +42,30 @@ export function generateRefreshToken(payload: refreshTokenPayload): string {
   return token
 }
 
+export function generateVisitorToken(
+  userAgent: string,
+  formId: string
+): string {
+  const data = {
+    formId: formId,
+    userAgent: userAgent,
+    visitorId: crypto.randomUUID(),
+  }
+
+  const visitorId = jwt.sign(data, `${visitorSecretKey}`, { expiresIn: '24h' })
+  return visitorId
+}
+
 export default function resolveToken(
   verifyInput: verifyTokenInput
 ): Partial<ApiResponse<unknown | JwtPayload>> {
   const { token, type, path } = verifyInput
-  const secretKey = type === 'Access' ? accessSecretKey : refreshSecretKey
+  const secretKey =
+    type === 'Access'
+      ? accessSecretKey
+      : type === 'Refresh'
+        ? refreshSecretKey
+        : visitorSecretKey
   try {
     const jwtRes = jwt.verify(token, secretKey) as JwtPayload
     return {

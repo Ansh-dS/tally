@@ -18,7 +18,7 @@ import type { NextRequest } from 'next/server'
 
     2. middleware is a API not server function.
 */
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   // In proxy/middleware, always read cookies from the incoming request.
   const accessToken = request.cookies.get('jwtAccessToken')?.value
   const refreshToken = request.cookies.get('jwtRefreshToken')?.value
@@ -28,7 +28,10 @@ export async function proxy(request: NextRequest) {
     */
   const pathname = request.nextUrl.pathname
   const pagesPath =
-    pathname.startsWith('/forms') || pathname.startsWith('/analytics')
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/forms') ||
+    pathname.startsWith('/analytics') ||
+    pathname.startsWith('/editor')
 
   if (!pagesPath) {
     console.log('inside pagesPath')
@@ -65,5 +68,11 @@ export async function proxy(request: NextRequest) {
 
 // Only run this on specific routes/files.
 export const config = {
-  matcher: ['/forms/:path*', '/analytics/:path*'],
+  matcher: [
+    '/',
+    '/dashboard/:path*',
+    '/forms/:path*',
+    '/analytics/:path*',
+    '/editor/:path*',
+  ],
 }

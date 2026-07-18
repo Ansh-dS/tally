@@ -13,10 +13,12 @@ import { type FormBlock, type FormHeader } from '@/lib/utils/store'
 import { motion, AnimatePresence } from 'framer-motion'
 import { showToast } from '@primitives/ToastProvider/ToastProvider'
 import { LiveFieldRenderer } from '@/containers/editor/sharePage/LiveFieldRender'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { submitUserResponse } from '@/action/submitResponse'
 import { useRouter } from 'next/navigation'
+import { createVisitor } from '@/lib/redis/visitor'
+import { type VisitorProgress } from '@/lib/redis/visitor'
 
 type PreviewFormData = {
   blocks: FormBlock[]
@@ -26,7 +28,7 @@ type PreviewFormData = {
 type FormResponseValue = string | number | boolean | string[] | null
 export type ResponseRow = Record<string, FormResponseValue>
 
-// Submit and preview pages: sumbitPage=> send data to the database but not in other.
+// Renders the form either for preview or for user submission. Use `pageName` to control behavior.
 export function ResponsePage({
   formData,
   formId,
@@ -41,11 +43,16 @@ export function ResponsePage({
   // 1. ALL HOOKS MUST BE AT THE TOP (Rules of Hooks)
   // according to the page number we are fetching out index range from the array
   const [currentPage, setCurrentPage] = useState(0)
+  const [visitorProgress, setVisitorProgress] =
+    useState<VisitorProgress | null>(null)
   const { handleSubmit, register } = useForm<ResponseRow>()
   const router = useRouter()
 
   // Safe defaults so useMemo below doesn't crash before data arrives
-  const blocks = Array.isArray(formData?.blocks) ? formData!.blocks : []
+  const blocks = useMemo(
+    () => (Array.isArray(formData?.blocks) ? formData.blocks : []),
+    [formData]
+  )
   const header = formData?.header ?? { title: '', description: '' }
 
   // --- PAGINATION CONFIGURATION ---
@@ -75,12 +82,58 @@ export function ResponsePage({
     if (currentPage > 0) setCurrentPage((p) => p - 1)
   }
 
+  // below function: creating and storing visitor Progress
+  useEffect(() => {
+    if (pageName !== 'submitPage' || typeof formId !== 'string') return
+
+    let cancelled = false
+    const timeoutId = window.setTimeout(() => {
+      void (async () => {
+        const progress = await createVisitor(formId)
+        /* 'cancelled'=> when we remove tab or click back, we unmount this page components, 
+              hence, cancled gets ture and no fetch req(tor redis) created.*/
+        if (cancelled) return
+        setVisitorProgress(progress)
+
+        // requesting server.
+        const fetchRes = await fetch(`/api/forms/${formId}/visitor/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(progress),
+        })
+
+        // handling result of fetch request
+        if (!fetchRes.ok) {
+          console.warn("Can't save visitor data in redis.")
+        } else {
+          console.log('Successfully save the visitor data in Redis')
+        }
+      })()
+    }, 2000)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timeoutId)
+    }
+  }, [formId, pageName])
+
   const onSubmit = async (data: ResponseRow) => {
     if (pageName === 'submitPage') {
+      if (!visitorProgress?.visitorId) {
+        showToast({
+          title: 'Visitor not initialized yet. Please try again.',
+          intent: 'error',
+          variant: 'glass',
+          hideIcon: true,
+        })
+        return
+      }
+
       // send data to database.
       const isSubmitted = await submitUserResponse({
         answers: data,
         formId: formId ?? '',
+        visitorId: visitorProgress.visitorId,
       })
 
       if (isSubmitted) {
@@ -95,10 +148,10 @@ export function ResponsePage({
     }
     if (pageName === 'previewPage') {
       showToast({
-        title: 'Form Submited',
-        intent: 'success',
+        title: '✨ Preview mode: Submission simulated.',
+        intent: 'info',
         variant: 'glass',
-        hideIcon: true,
+        hideIcon: false,
       })
     }
   }
@@ -191,8 +244,17 @@ export function ResponsePage({
                     <LiveFieldRenderer
                       block={block}
                       disabled={isDisabled}
-                      questionNumber={index + currentPage * Y_SUBPARTS}
+                      questionNumber={index + currentPage * Y_SUBPARTS + 1}
                       register={register}
+                      visitorDetails={
+                        visitorProgress
+                          ? {
+                              visitorId: visitorProgress.visitorId,
+                              userAgent: visitorProgress.userAgent,
+                              formId: visitorProgress.formId,
+                            }
+                          : null
+                      }
                     />
                   </Box>
                 ))}
@@ -218,6 +280,7 @@ export function ResponsePage({
           <Button
             variant="ghost"
             size="md"
+            type="button"
             disabled={prevDisabled}
             className={prevDisabled ? 'hover:bg-trasnparent' : ''}
             onClick={handlePrev}
@@ -230,7 +293,12 @@ export function ResponsePage({
               Submit
             </Button>
           ) : (
-            <Button variant="primary" size="md" onClick={handleNext}>
+            <Button
+              variant="primary"
+              size="md"
+              type="button"
+              onClick={handleNext}
+            >
               Next
             </Button>
           )}

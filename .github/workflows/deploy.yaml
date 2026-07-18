@@ -1,0 +1,43 @@
+name: Continuous Production Deployment
+
+on:
+  push:
+    branches:
+      - main # Automatically runs every time you push or merge code into main
+
+jobs:
+  deploy-to-ec2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Cluster via Secure SSH Tunnel
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            # 1. Target the app directory created by our User Data bootstrap script
+            cd ~/tally-app
+
+            # 2. If the directory is empty, initialize git and pull code cleanly
+            if [ ! -d ".git" ]; then
+              git init
+              git remote add origin https://github.com/Ansh-dS/tally.git
+            fi
+
+            # 3. Pull the absolute latest changes from the main branch
+            git fetch --all
+            git reset --hard origin/main
+
+            # 4. Inject the fresh production secrets into the environment cache
+            echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
+
+            # 5. Build images and launch Next.js + BullMQ worker + DB layer smoothly
+            sudo docker compose --profile prod up -d --build
+
+            # 6. Clean up obsolete unused images to save server disk space
+            sudo docker image prune -f

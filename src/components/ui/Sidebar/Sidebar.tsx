@@ -297,7 +297,7 @@ export const SidebarItem = forwardRef<HTMLButtonElement, SidebarItemProps>(
         size={collapsed ? 'icon' : resolvedSize}
         collapsed={!!collapsed}
         className={cn(
-          'border-none transition-all duration-300 overflow-hidden',
+          'border-none transition-all duration-300 overflow-hidden ',
 
           // FIXED STEP: Your precise structural alignment target location applied.
           collapsed
@@ -345,7 +345,7 @@ export const SidebarItem = forwardRef<HTMLButtonElement, SidebarItemProps>(
             {badge && (
               <Box
                 as="span"
-                className="bg-action-primary text-fg-inverted border-0 text-[10px] px-xs py-0.5 rounded-pill font-bold shrink-0 ml-xs"
+                className="bg-action-primary text-fg-inverted border-0 text-[10px] px-xs py-0.5 rounded-pill font-bold shrink-0 ml-xs "
               >
                 {badge}
               </Box>

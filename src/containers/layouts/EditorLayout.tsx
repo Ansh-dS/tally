@@ -10,19 +10,21 @@ import {
 } from '@primitives/Breadcrumb/Breadcrumb'
 import { Button } from '@primitives/Button/Button'
 import { Header } from '@primitives/Header/Header'
-import { Popover } from '@primitives/Popover/Popover'
+import { DropdownMenu } from '@/components/ui/DropDown/DropDown'
 import { Stack } from '@primitives/Stack/Stack'
 import { Tabs, TabsList, TabsTrigger } from '@primitives/Tabs/Tabs'
 import { Text } from '@primitives/Text/Text'
 import { Spinner } from '@primitives/Spinner/Spinner'
 import { useRouter } from 'next/navigation'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, LogOut, Settings } from 'lucide-react'
 import { useStore } from '@utils/store'
+import { logout } from '../../action/dashboard'
 import { handlePreview } from '@/containers/feedback/previewPage'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { publishForm } from '@actions/form'
 import { useToast } from '@/components/ui/ToastProvider/ToastProvider'
 import hashPassword from '@utils/hash'
+import type { EditorForm } from '@/lib/utils/data-fetchers'
 
 type EditorTab = 'build' | 'share' | 'results'
 const TOAST_DELAY_MS = 500
@@ -31,10 +33,12 @@ export default function EditorLayout({
   children,
   activeTab = 'build',
   formId,
+  form,
 }: {
   children: React.ReactNode
   activeTab?: EditorTab
   formId: string
+  form?: EditorForm | null
 }) {
   const router = useRouter()
   const isLoading = useStore((state) => state.saveButton.isLoading)
@@ -43,6 +47,10 @@ export default function EditorLayout({
     'primary'
   )
   const { showToast } = useToast()
+
+  const handleLogout = useCallback(async () => {
+    await logout('/forms')
+  }, [])
   /*
         if we have string then we can apply:
             a. charAt()
@@ -55,7 +63,59 @@ export default function EditorLayout({
   const { expDate } = useStore((state) => state.formExpDate)
   const { password } = useStore((state) => state.formPassword)
 
+  // ── Store hydration ────────────────────────────────────────────────────────
+  // Selectors use state.header.title (the actual store shape)
+  const setBlocks = useStore((state) => state.setBlocks)
+  const setTitle = useStore((state) => state.setTitle)
+  const setDescription = useStore((state) => state.setDescrition)
+
+  useEffect(() => {
+    if (!form) return
+    const parsedBlocks =
+      typeof form.blocks === 'string'
+        ? JSON.parse(form.blocks as unknown as string)
+        : (form.blocks ?? [])
+    setBlocks(parsedBlocks)
+    setTitle(form.title ?? '')
+    if (form.description) setDescription(form.description)
+  }, [form, setBlocks, setTitle, setDescription])
+
+  const blocks = useStore((state) => state.blocks)
+  const title = useStore((state) => state.header.title ?? '')
+  const description = useStore((state) => state.header.description ?? '')
+
+  useEffect(() => {
+    const channel = new BroadcastChannel('tally-form-data')
+
+    const broadcastForm = () => {
+      channel.postMessage({
+        id: 'State_Updated',
+        formData: { header: { title, description }, blocks },
+      })
+    }
+
+    channel.onmessage = (e) => {
+      if (e.data?.id === 'REQUEST_INITIAL_STATE') {
+        broadcastForm()
+      }
+    }
+
+    broadcastForm()
+
+    return () => channel.close()
+  }, [blocks, title, description])
+
   const publishHandler = useCallback(async () => {
+    if (formId === 'demo-form-123') {
+      showToast({
+        intent: 'info',
+        title: 'Demo Mode',
+        description: 'Publishing is disabled in Demo Mode.',
+        variant: 'glass',
+      })
+      return
+    }
+
     setPublishLoading(true) //loading to true,
     setPublishStyle('success')
 
@@ -134,25 +194,35 @@ export default function EditorLayout({
             >
               {isPublishLoading ? 'Publishing' : 'Publish'}
             </Button>
-            <Popover
-              align="end"
-              variant="glass"
-              content={
-                <Stack className="p-s" gap="sm">
-                  <Text variant="label" weight="semibold">
-                    Builder Profile
-                  </Text>
-                  <Button variant="secondary" size="sm" fullWidth>
-                    Account
-                  </Button>
-                  <Button variant="secondary" size="sm" fullWidth>
-                    Sign out
-                  </Button>
-                </Stack>
+            <DropdownMenu
+              align="right"
+              trigger={
+                <Button
+                  variant="ghost"
+                  className="h-auto w-auto rounded-full p-0"
+                >
+                  <Avatar
+                    fallback="TB"
+                    className="cursor-pointer hover:opacity-80"
+                  />
+                </Button>
               }
             >
-              <Avatar fallback="TB" className="cursor-pointer" />
-            </Popover>
+              <Stack gap={'sm'} className="p-4">
+                <Button fullWidth={true} variant={'secondary'} disabled>
+                  Account
+                </Button>
+                <Button
+                  fullWidth={true}
+                  variant={'secondary'}
+                  startIcon={<LogOut />}
+                  onClick={handleLogout}
+                  color="accent"
+                >
+                  Logout
+                </Button>
+              </Stack>
+            </DropdownMenu>
           </Stack>
         }
         logo={

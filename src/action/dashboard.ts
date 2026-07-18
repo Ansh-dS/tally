@@ -5,25 +5,14 @@ import { protectApiRoute } from '@auth/authorization'
 import { cookies } from 'next/headers'
 import { prismaClient } from '@db/client'
 
-/*
-    using isAuthenticate:
-        we get the user data after checking the userId in database. 
-        otherwise we redirect to the login. 
-*/
-
+// Verify user is authenticated.
 export interface AuthorizedUser {
   id: string
   email: string
-  firstName: string | null
+  firstName?: string | null
 }
 
-/**
- * Enforces authentication on a Server Component or Action.
- * Step 1: Validates the current session using the protectApiRoute brain.
- * Step 2: If the access token is dead but a refresh is possible, redirects to the refresh handler.
- * Step 3: If no valid session exists, redirects to the login page with a callback URL.
- * Output: Returns the verified AuthorizedUser object or triggers a server-side redirect.
- */
+// Verify and return authenticated user.
 export async function getAuthorizedUser(
   currentPath: string
 ): Promise<AuthorizedUser> {
@@ -36,9 +25,7 @@ export async function getAuthorizedUser(
 
         3. in login or other page we first need to decode the path using 'decodeURIComponent.
     */
-  console.log('reached getAuthorizedUser')
-  // Refresh path: cookie mutation must happen in a Route Handler.
-  // As it contains 'tryRefreshToken'
+  // Refresh tokens via Route Handler (mutates cookies).
   if (auth.status === 'error') {
     redirect(`/api/auth/refresh?callbackUrl=${encodeURIComponent(currentPath)}`)
   }
@@ -47,19 +34,12 @@ export async function getAuthorizedUser(
     redirect(`/login?callbackUrl=${encodeURIComponent(currentPath)}`)
   }
 
-  console.log(auth.data)
-  // Return the verified user so the page can use it
+  // Type-safe after auth checks above.
   const user = auth.data as AuthorizedUser
   return user
 }
 
-/**
- * Terminates the user session and cleans up all security artifacts.
- * Step 1: Verifies the user's identity before allowing logout (prevents CSRF logouts).
- * Step 2: Deletes the JWT cookies from the browser.
- * Step 3: Wipes all session records from the database for this specific user.
- * Output: Redirects the user to the login page.
- */
+// Logout user and clear all sessions.
 export async function logout(currentPath = '/dashboard') {
   const auth = await protectApiRoute(currentPath)
 
@@ -73,10 +53,7 @@ export async function logout(currentPath = '/dashboard') {
   cookieStore.delete('jwtAccessToken')
   cookieStore.delete('jwtRefreshToken')
 
-  /*
-        1. currently we are deleting all the sessions oppned on every-device
-        2. but using session Id we can logout form each session in-dependendently. 
-    */
+  // Delete all sessions for this user.
   try {
     await prismaClient.session.deleteMany({
       where: {
@@ -84,8 +61,7 @@ export async function logout(currentPath = '/dashboard') {
       },
     })
   } catch (err) {
-    /* We don't return handleQueryError here because:
-                "logged out" in their browser. We just want them gone.*/
+    // Continue logout even if session cleanup fails.
     console.error('Database failed to clear sessions:', err)
   }
   redirect('/login')

@@ -144,33 +144,6 @@ export default function EditorCanvas({
     return () => clearTimeout(timerId)
   }, [blocks, header, currentId, setLoading]) // 4. Depend on currentId!
 
-  useEffect(() => {
-    // creating a channel.
-    const channel = new BroadcastChannel('tally-form-data')
-
-    // whenever we make change we post form_data which gets recived by other browser tab.
-    const broadcastForm = () => {
-      channel.postMessage({
-        id: 'State_Updated',
-        formData: { header, blocks },
-      })
-    }
-
-    // Listen for the Preview tab's "Shout": sending data for the first time.
-    // using "onMessage"
-    channel.onmessage = (e) => {
-      if (e.data?.id === 'REQUEST_INITIAL_STATE') {
-        broadcastForm()
-      }
-    }
-
-    // 2. Broadcast on every change
-    broadcastForm()
-
-    // Close this connection only when we unmount canvas component uisng return of useEffect.
-    return () => channel.close()
-  }, [blocks, header])
-
   return (
     <Box
       className="flex-1 min-w-0 m-s h-full p-2xl border-0 text-fg-primary"

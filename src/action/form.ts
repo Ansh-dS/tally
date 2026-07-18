@@ -207,6 +207,7 @@ interface AllFormsProps {
   userId: string
 }
 
+// Provides all forms for a user
 export async function allForms({ userId }: AllFormsProps) {
   try {
     // 1. Validation: Ensure we actually have a userId
@@ -266,7 +267,8 @@ export async function allForms({ userId }: AllFormsProps) {
       data: normalizedForms,
     }
   } catch (error) {
-    console.error(`[ALL_FORMS_ERROR]:`, error)
+    const rich = handleQueryError(error, '/')
+    console.warn(rich, '/')
 
     return {
       success: false,
