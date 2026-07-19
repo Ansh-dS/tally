@@ -1,43 +1,39 @@
-name: Continuous Production Deployment
+name: Production Deployment
 
 on:
   push:
     branches:
-      - main # Automatically runs every time you push or merge code into main
+      - main # Or your active deployment branch like feat-ai-summary
 
 jobs:
-  deploy-to-ec2:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Deploy Cluster via Secure SSH Tunnel
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Deploy Cluster over SSH
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
           script: |
-            # 1. Target the app directory created by our User Data bootstrap script
-            cd ~/tally
+            # 1. Target the correct home location directory created by User Data
+            cd /home/ubuntu/tally
 
-            # 2. If the directory is empty, initialize git and pull code cleanly
+            # 2. Safe check: Initialize git if the folder is completely empty
             if [ ! -d ".git" ]; then
-              git init
-              git remote add origin https://github.com/Ansh-dS/tally.git
+              echo "Initializing Git repository clone..."
+              git clone https://github.com/${{ github.repository }}.git .
             fi
 
-            # 3. Pull the absolute latest changes from the main branch
+            # 3. Pull the absolute freshest changes safely
             git fetch --all
             git reset --hard origin/main
 
-            # 4. Inject the fresh production secrets into the environment cache
+            # 4. Inject the production configuration payload 
             echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
 
-            # 5. Build images and launch Next.js + BullMQ worker + DB layer smoothly
-            sudo docker compose --profile prod up -d --build
+            # 5. Build and wake up the containers (No sudo needed for GitHub's fresh terminal session!)
+            docker compose --profile prod up -d --build
 
-            # 6. Clean up obsolete unused images to save server disk space
-            sudo docker image prune -f
+            # 6. Housekeeping: Prune older build caches to keep your upgraded storage clean
+            docker image prune -f
