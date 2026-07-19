@@ -76,7 +76,7 @@ const notificationColor: Record<SeverityLevel | 'None', string> = {
   Medium: 'bg-status-warning',
   High: 'bg-status-danger',
   Critical: 'bg-status-danger',
-  None: 'bg-status-warning',
+  None: 'bg-transparent',
 }
 
 // we can't make entire function as async but can create some functions using async.
@@ -98,7 +98,7 @@ export default function DashboardLayoutUI({
     : []
 
   const handleLogout = useCallback(async () => {
-    await logout(pathname || '/dashboard')
+    await logout(pathname || '/forms')
   }, [pathname])
 
   return (
@@ -167,7 +167,7 @@ export default function DashboardLayoutUI({
             <Stack direction={'horizontal'} align={'center'} justify={'center'}>
               <Box className="border-0 relative w-auto h-auto">
                 <Box
-                  className={`absolute w-3 h-3 top-3 right-3 rounded-full ${notificationColor[dropOffs.data?.severityLevel ?? 'None']}`}
+                  className={`absolute w-3 h-3 top-3 right-3 rounded-full ${notificationColor[dropOffs.data?.severityLevel ?? (formsCount === 0 ? 'Medium' : 'None')]}`}
                 ></Box>
                 <Button
                   variant={'ghost'}

@@ -3,8 +3,8 @@ import { cookies } from 'next/headers'
 import resolveToken from '@auth/jwt'
 import { getAuthToken } from '@auth/cookies'
 import { prismaClient } from '@db/client'
-import { accessTokenCookie, refreshTokenCookie } from '@auth/cookies'
-import { generateAccessToken, generateRefreshToken } from '@auth/jwt'
+import { accessTokenCookie } from '@auth/cookies'
+import { generateAccessToken } from '@auth/jwt'
 import {
   ApiResponse,
   failedResponse,
@@ -90,9 +90,9 @@ export async function validateSessionCore(
 
 // Evaluate if user is authenticated and handle silent refresh state.
 export async function validateSession(
-  currentPath = '/dashboard'
+  currentPath = '/forms'
 ): Promise<AuthCheckResult> {
-  const path = currentPath || '/dashboard'
+  const path = currentPath || '/forms'
 
   // Step 1: Leverage the "Centralized Brain" for primary validation
   const session = await validateSessionCore(path)
@@ -145,7 +145,7 @@ async function deleteSessionByToken(token: string): Promise<void> {
   }
 }
 
-// Perform a silent token rotation using a valid Refresh Token.
+// create an access token cilently using a valid Refresh Token.
 export async function tryRefreshToken(
   currentPath = '/api/auth/refresh'
 ): Promise<RefreshResult> {
@@ -210,24 +210,14 @@ export async function tryRefreshToken(
       return { status: 'failed', error: 'user_not_found' }
     }
 
-    // Step 3: Generate a fresh pair of Access and Refresh tokens.
+    // Step 3: Generate a fresh Access token.
     const newAccessToken = generateAccessToken({
       userId: session.user.id,
       email: session.user.email,
     })
-    const newRefreshToken = generateRefreshToken({ userId: session.user.id })
 
-    // Step 4: Update the session in the database and overwrite the user's cookies.
-    await prismaClient.session.update({
-      where: { token: refreshToken },
-      data: {
-        token: newRefreshToken,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      },
-    })
-
+    // Step 4: Overwrite the user's access token cookie.
     await accessTokenCookie(newAccessToken)
-    await refreshTokenCookie(newRefreshToken)
 
     return { status: 'success', data: { userId: session.user.id } }
   } catch (err) {

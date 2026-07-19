@@ -162,148 +162,150 @@ export default function AnalyticsCanvas({
       )}
 
       {/* ── Bigger components started. ─────────────────────────────────────── */}
-      <Stack className="px-2 w-full mt-8">
-        <Stack className=" w-full">
-          <Text variant={'h2'} weight={'bold'}>
-            Each Question Analysis
-          </Text>
-          <Stack
-            direction="vertical"
-            align="stretch"
-            className="w-full gap-20  px-3 py-1"
-          >
-            {safeLayout.map((block) => {
-              const blockType = DB_TYPE_TO_FORM_BLOCK_TYPE[block.type]
-              const blockData = aggregatedBlocks[block.id]
+      {!isColdStart && !isAiProcessing && (
+        <Stack className="px-2 w-full mt-8">
+          <Stack className=" w-full">
+            <Text variant={'h2'} weight={'bold'}>
+              Each Question Analysis
+            </Text>
+            <Stack
+              direction="vertical"
+              align="stretch"
+              className="w-full gap-20  px-3 py-1"
+            >
+              {safeLayout.map((block) => {
+                const blockType = DB_TYPE_TO_FORM_BLOCK_TYPE[block.type]
+                const blockData = aggregatedBlocks[block.id]
 
-              if (!blockData || !blockData.data) return null
+                if (!blockData || !blockData.data) return null
 
-              switch (blockType) {
-                // 1.
-                case 'LONG TEXT': {
-                  // Extract the qualitative insight for this specific block, if it exists
-                  const globalSummary = formInsight?.globalSummary as
-                    | Record<string, FormQualitativeInsight>
-                    | undefined
-                  const insight = globalSummary?.[block.id]
+                switch (blockType) {
+                  // 1.
+                  case 'LONG TEXT': {
+                    // Extract the qualitative insight for this specific block, if it exists
+                    const globalSummary = formInsight?.globalSummary as
+                      | Record<string, FormQualitativeInsight>
+                      | undefined
+                    const insight = globalSummary?.[block.id]
 
-                  return (
-                    <LazyChartCard
-                      key={block.id}
-                      title={block.label}
-                      skeletonHeight={450}
-                    >
-                      <Stack align="stretch" className="gap-2xl">
-                        {insight ? (
-                          <>
-                            <QualitativeIntentChart
-                              data={insight.intentTags}
-                              questionLabel={`${block.label} (Intent)`}
-                            />
-                            <SentimentChart
-                              data={insight.sentimentSplit}
-                              questionLabel={`${block.label} (Sentiment)`}
-                            />
-                          </>
-                        ) : (
-                          <Box className="flex h-48 w-full items-center justify-center rounded-medium bg-surface-sunken pt-2">
-                            <Text variant="body" color="secondary">
-                              Waiting for AI processing...
-                            </Text>
-                          </Box>
-                        )}
-                      </Stack>
-                    </LazyChartCard>
-                  )
-                }
-
-                // 2.
-                case 'SINGLE CHOICE':
-                case 'MULTIPLE CHOICE':
-                case 'SELECT MENU':
-                  return (
-                    <LazyChartCard
-                      key={block.id}
-                      title={block.label}
-                      skeletonHeight={400}
-                    >
-                      <QualitativeIntentChart
-                        data={blockData.data as RechartsDataArray}
-                        questionLabel={block.label}
-                      />
-                    </LazyChartCard>
-                  )
-
-                case 'TOGGLE SWITCH':
-                  return (
-                    <LazyChartCard
-                      key={block.id}
-                      title={block.label}
-                      skeletonHeight={150}
-                    >
-                      <BinaryStatWidget
-                        data={blockData.data as BinaryStatData}
-                        questionLabel={block.label}
-                      />
-                    </LazyChartCard>
-                  )
-
-                // 3.
-                case 'SHORT TEXT':
-                case 'EMAIL FIELD': {
-                  const rows = blockData.data as RawTextArray
-                  return (
-                    <LazyChartCard
-                      key={block.id}
-                      title={block.label}
-                      skeletonHeight={300}
-                    >
-                      <Box className="w-full pt-2 border-0">
-                        <Stack gap="sm" className="mb-6">
-                          <Text variant="caption" color="secondary">
-                            Recent responses
-                          </Text>
-                        </Stack>
-                        <Box className="w-full overflow-hidden">
-                          {rows.length === 0 ? (
-                            <Box className="flex h-32 items-center justify-center bg-surface-sunken">
+                    return (
+                      <LazyChartCard
+                        key={block.id}
+                        title={block.label}
+                        skeletonHeight={450}
+                      >
+                        <Stack align="stretch" className="gap-2xl">
+                          {insight ? (
+                            <>
+                              <QualitativeIntentChart
+                                data={insight.intentTags}
+                                questionLabel={`${block.label} (Intent)`}
+                              />
+                              <SentimentChart
+                                data={insight.sentimentSplit}
+                                questionLabel={`${block.label} (Sentiment)`}
+                              />
+                            </>
+                          ) : (
+                            <Box className="flex h-48 w-full items-center justify-center rounded-medium bg-surface-sunken pt-2">
                               <Text variant="body" color="secondary">
-                                No responses collected yet.
+                                Waiting for AI processing...
                               </Text>
                             </Box>
-                          ) : (
-                            <DataGrid size="md">
-                              <DataGridHeader>
-                                <DataGridRow>
-                                  <DataGridHead>Response</DataGridHead>
-                                  <DataGridHead>Submitted At</DataGridHead>
-                                </DataGridRow>
-                              </DataGridHeader>
-                              {rows.map((row) => (
-                                <DataGridRow key={row.id}>
-                                  <DataGridCell>{row.value}</DataGridCell>
-                                  <DataGridCell>
-                                    {new Date(
-                                      row.submittedAt
-                                    ).toLocaleDateString()}
-                                  </DataGridCell>
-                                </DataGridRow>
-                              ))}
-                            </DataGrid>
                           )}
-                        </Box>
-                      </Box>
-                    </LazyChartCard>
-                  )
-                }
+                        </Stack>
+                      </LazyChartCard>
+                    )
+                  }
 
-                default:
-                  return null
-              }
-            })}
+                  // 2.
+                  case 'SINGLE CHOICE':
+                  case 'MULTIPLE CHOICE':
+                  case 'SELECT MENU':
+                    return (
+                      <LazyChartCard
+                        key={block.id}
+                        title={block.label}
+                        skeletonHeight={400}
+                      >
+                        <QualitativeIntentChart
+                          data={blockData.data as RechartsDataArray}
+                          questionLabel={block.label}
+                        />
+                      </LazyChartCard>
+                    )
+
+                  case 'TOGGLE SWITCH':
+                    return (
+                      <LazyChartCard
+                        key={block.id}
+                        title={block.label}
+                        skeletonHeight={150}
+                      >
+                        <BinaryStatWidget
+                          data={blockData.data as BinaryStatData}
+                          questionLabel={block.label}
+                        />
+                      </LazyChartCard>
+                    )
+
+                  // 3.
+                  case 'SHORT TEXT':
+                  case 'EMAIL FIELD': {
+                    const rows = blockData.data as RawTextArray
+                    return (
+                      <LazyChartCard
+                        key={block.id}
+                        title={block.label}
+                        skeletonHeight={300}
+                      >
+                        <Box className="w-full pt-2 border-0">
+                          <Stack gap="sm" className="mb-6">
+                            <Text variant="caption" color="secondary">
+                              Recent responses
+                            </Text>
+                          </Stack>
+                          <Box className="w-full overflow-hidden">
+                            {rows.length === 0 ? (
+                              <Box className="flex h-32 items-center justify-center bg-surface-sunken">
+                                <Text variant="body" color="secondary">
+                                  No responses collected yet.
+                                </Text>
+                              </Box>
+                            ) : (
+                              <DataGrid size="md">
+                                <DataGridHeader>
+                                  <DataGridRow>
+                                    <DataGridHead>Response</DataGridHead>
+                                    <DataGridHead>Submitted At</DataGridHead>
+                                  </DataGridRow>
+                                </DataGridHeader>
+                                {rows.map((row) => (
+                                  <DataGridRow key={row.id}>
+                                    <DataGridCell>{row.value}</DataGridCell>
+                                    <DataGridCell>
+                                      {new Date(
+                                        row.submittedAt
+                                      ).toLocaleDateString()}
+                                    </DataGridCell>
+                                  </DataGridRow>
+                                ))}
+                              </DataGrid>
+                            )}
+                          </Box>
+                        </Box>
+                      </LazyChartCard>
+                    )
+                  }
+
+                  default:
+                    return null
+                }
+              })}
+            </Stack>
           </Stack>
         </Stack>
-      </Stack>
+      )}
     </Stack>
   )
 }

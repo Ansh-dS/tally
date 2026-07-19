@@ -22,25 +22,15 @@ export default async function proxy(request: NextRequest) {
   // In proxy/middleware, always read cookies from the incoming request.
   const accessToken = request.cookies.get('jwtAccessToken')?.value
   const refreshToken = request.cookies.get('jwtRefreshToken')?.value
-  /* a. Defining which paths shouldn't be accessed without access token.
-        b. request.nextUrl.pathname: fetches the path over whole url also exclude params.
-                https://example.com/products/123?ref=homepage =>  products/123. 
-    */
-  const pathname = request.nextUrl.pathname
-  const pagesPath =
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/forms') ||
-    pathname.startsWith('/analytics') ||
-    pathname.startsWith('/editor')
-
-  if (!pagesPath) {
-    console.log('inside pagesPath')
-    return NextResponse.next()
-  }
+  /* 
+    request.nextUrl.pathname: fetches the path over whole url also exclude params.
+            https://example.com/products/123?ref=homepage =>  products/123. 
+  */
+  const orgPath = request.nextUrl.pathname
 
   // No refresh token means no way to recover -> login.
   if (!refreshToken) {
-    console.log('no refreah token')
+    console.log('no refresh token')
     /* a. request.url: the absolute url the user want to access, https://example.com/xyz/do/don't
             b. new URL(): fetches base url form 'request.url' then add 'path:./login' at the last. 
         */
@@ -48,17 +38,15 @@ export default async function proxy(request: NextRequest) {
     /* a. attaches the params(key-val pair) at the end of above URL.
             b. at the login page developer takes up the path and add up with base url to come to the corret page which they trying to access before.
         */
-    loginUrl.searchParams.set('callbackUrl', pathname)
+    loginUrl.searchParams.set('callbackUrl', orgPath)
 
     return NextResponse.redirect(loginUrl)
   }
 
-  // Refresh exists but access is missing -> trigger rotation route immediately.
+  // Refresh exists but access is missing or expired-> trigger rotation route immediately.
   if (!accessToken) {
-    console.log('no access token')
     const refreshUrl = new URL('/api/auth/refresh', request.url)
-    refreshUrl.searchParams.set('callbackUrl', pathname)
-    console.log('after try refrsh in proxy:', refreshUrl)
+    refreshUrl.searchParams.set('callbackUrl', orgPath)
     return NextResponse.redirect(refreshUrl)
   }
 
@@ -68,11 +56,5 @@ export default async function proxy(request: NextRequest) {
 
 // Only run this on specific routes/files.
 export const config = {
-  matcher: [
-    '/',
-    '/dashboard/:path*',
-    '/forms/:path*',
-    '/analytics/:path*',
-    '/editor/:path*',
-  ],
+  matcher: ['/', '/forms', '/forms/:path*'],
 }

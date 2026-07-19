@@ -96,7 +96,7 @@ export function ResponsePage({
         setVisitorProgress(progress)
 
         // requesting server.
-        const fetchRes = await fetch(`/api/forms/${formId}/visitor/`, {
+        const fetchRes = await fetch(`/api/forms/${formId}/visitor`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(progress),
