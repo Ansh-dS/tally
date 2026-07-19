@@ -4,13 +4,13 @@ FROM node:lts-alpine AS builder
 # 2. Set the working directory inside the container
 WORKDIR /tally
 
-# Enable corepack and install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Installing pnpm stable version 9. 
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
 # 3. Copy only the package files first to cache dependencies locally
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 
-# 4. Install all dependencies
+# 4. Install all dependencies: used 'pnpm conifg' too, as pnpm not letting bcrpt and prisma, running at backend.
 RUN pnpm install
 
 # 5. Copy the rest of your application code into the container
