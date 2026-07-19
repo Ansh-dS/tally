@@ -134,7 +134,7 @@ export default function EditorLayout({
           intent: 'success',
           title: 'URL',
           variant: 'glass',
-          description: `http://localhost:3000/f/${formId}`,
+          description: `${window.location.origin}/f/${formId}`,
         })
       }, TOAST_DELAY_MS)
     } else {
