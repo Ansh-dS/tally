@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { protectApiRoute } from '@auth/authorization'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { prismaClient } from '@db/client'
 
 // Verify user is authenticated.
@@ -40,7 +40,7 @@ export async function getAuthorizedUser(
 }
 
 // Logout user and clear all sessions.
-export async function logout(currentPath = '/dashboard') {
+export async function logout(currentPath: string) {
   const auth = await protectApiRoute(currentPath)
 
   if (auth.status === 'failed' || auth.status === 'error') {

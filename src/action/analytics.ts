@@ -35,7 +35,7 @@ import type { llmModels } from '@/lib/ai/chooseAi/llmProvider'
  */
 export async function getFormAnalytics(
   formId: string,
-  path: string = '/dashboard'
+  path: string = '/forms'
 ): Promise<FormAggregationResult> {
   // ── 1. Authenticate ────────────────────────────────────────────────────────
   const user = await getAuthorizedUser(path)
@@ -121,7 +121,7 @@ export async function getFormLongTextInsights(
   formId: string,
   blockId: string,
   modelName: llmModels = 'Groq',
-  path: string = '/dashboard'
+  path: string = '/forms'
 ): Promise<aiFormQualitativeSummary> {
   // ── 1. Authenticate ────────────────────────────────────────────────────────
   await getAuthorizedUser(path)

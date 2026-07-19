@@ -64,13 +64,16 @@ export function FormAlerts({
 
     if (!displayData) {
       return (
-        <EmptyState
-          variant="minimal"
-          fullWidth
-          title="No Insights Yet"
-          description="We haven't gathered enough drop-off data to generate insights for your workspace yet."
-          className="p-2xl"
-        />
+        <Box className="border-0 flex-1 flex justify-center align-center">
+          {' '}
+          <EmptyState
+            variant="minimal"
+            fullWidth
+            title="No Insights Yet"
+            description="We haven't gathered enough drop-off data to generate insights for your workspace yet."
+            spacing={'spacious'}
+          />
+        </Box>
       )
     }
 
