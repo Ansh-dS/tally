@@ -17,8 +17,7 @@ export async function GET(request: NextRequest) {
   const callbackUrl = searchParams.get('callbackUrl') || '/forms'
 
   // Ensure we are redirecting to an absolute path on our own domain
-  // request.nextUrl.origin gets 'http://localhost:3000' automatically
-  const origin = request.nextUrl.origin
+  const origin = process.env.HOST as string
 
   // We strictly ensure callbackUrl starts with a /
   const safeCallback = callbackUrl.startsWith('/')

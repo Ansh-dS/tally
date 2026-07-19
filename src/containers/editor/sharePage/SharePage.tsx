@@ -21,7 +21,7 @@ export default function SharePage(SharePageInput: { formId: string }) {
   const copyHandler = useCopyHandler()
 
   const { formId } = SharePageInput
-  const host = process.env.NEXT_PUBLIC_SHAREURL // NEXT_PUBLIC: is must before any variable name at client side.
+  const host = typeof window !== 'undefined' ? `${window.location.origin}/f/` : '/f/'
   const shareUrl = `${host}${formId}`
 
   const { expDate, setExpDate } = useStore((state) => state.formExpDate)

@@ -44,6 +44,6 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     console.error('[/api/auth/google] Failed to build authorization URL:', err)
     // Fail safely — redirect to login so the user isn't stuck on a blank screen.
-    return NextResponse.redirect(new URL('/login', request.url))
+    return NextResponse.redirect(new URL('/login', process.env.HOST as string))
   }
 }

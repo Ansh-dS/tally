@@ -26,7 +26,7 @@ import { prismaClient } from '@/lib/db/client'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
-  const origin = request.nextUrl.origin
+  const origin = process.env.HOST as string
 
   const code = searchParams.get('code')
   const state = searchParams.get('state')
