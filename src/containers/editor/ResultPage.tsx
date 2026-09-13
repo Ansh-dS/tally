@@ -28,7 +28,8 @@ export default function EditorResultPage({
 
   return (
     <Box className=" flex h-full min-h-0 w-full border-0">
-      {/*Sidebar*/}
+      {/*Sidebar (hidden on mobile) */}
+      <Box className="hidden lg:flex border-0">
       <Sidebar
         position="left"
         size={'wide'}
@@ -64,8 +65,9 @@ export default function EditorResultPage({
           ))}
         </Stack>
       </Sidebar>
+      </Box>
 
-      <Stack align="stretch" className=" flex-1 p-2xl overflow-y-auto">
+      <Stack align="stretch" className="flex-1 p-m sm:p-2xl overflow-y-auto">
         <AnalyticsCanvas data={data} isDemo={isDemo} />
       </Stack>
 

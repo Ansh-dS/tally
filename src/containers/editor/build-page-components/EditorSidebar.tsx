@@ -76,7 +76,7 @@ export function EditorSidebar() {
           ))}
 
           {/* Visual Cue for adding more */}
-          <Box className="mt-s p-m w-full border-dashed rounded-md flex flex-col items-center justify-center opacity-40">
+          <Box className="mt-s p-m w-full flex-1 border-dashed rounded-md flex flex-col items-center justify-center opacity-40">
             <Plus size={20} className="mb-xs" />
             <Text variant="caption">Coming Soon</Text>
           </Box>

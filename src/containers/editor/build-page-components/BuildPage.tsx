@@ -69,7 +69,7 @@ export default function BuildPage({ form, user }: BuildPageInput) {
       so we can see an overlay.
   */
   const handleDragStart: DragStartHandler = (event) => {
-    // FIXED: event.source instead of event.operation.source
+    // event.source instead of event.operation.source
     const sourceType = event.operation.source?.data?.type
     if (typeof sourceType === 'string' && sourceType in BLOCK_REGISTRY) {
       setActiveType(sourceType as BlockType)
@@ -79,7 +79,7 @@ export default function BuildPage({ form, user }: BuildPageInput) {
   // Fires when the item is dropped.
   // we are storing the new component in zustand.
   const handleDragEnd: DragEndHandler = (event) => {
-    // FIXED: event.source and event.target instead of event.operation
+    // event.source and event.target instead of event.operation
     const source = event.operation.source
     const target = event.operation.target
     const targetId = target?.id == null ? null : String(target.id)
@@ -125,7 +125,7 @@ export default function BuildPage({ form, user }: BuildPageInput) {
     /* Second element*/
     <Stack
       direction="horizontal"
-      className="w-full min-w-0 overflow-x-hidden border-0"
+      className="w-full flex-1 h-[calc(100vh-4rem)] min-w-0 overflow-hidden border-0"
     >
       {/*
                     1.first element under header:
@@ -155,8 +155,10 @@ export default function BuildPage({ form, user }: BuildPageInput) {
                     manager.monitor.EventName
                 */}
       <DragDropProvider onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        {/*i. leftmost sidebar*/}
-        <EditorSidebar />
+        {/*i. leftmost sidebar (hidden on mobile) */}
+        <Box className="hidden md:flex h-full border-0">
+          <EditorSidebar />
+        </Box>
         {/* Passed the setter to Canvas so clicking a block updates the ID */}
         {/*ii. canvas component */}
         <EditorCanvas
@@ -175,7 +177,8 @@ export default function BuildPage({ form, user }: BuildPageInput) {
         </DragOverlay>
       </DragDropProvider>
 
-      {/*iii. THE NEW RIGHT SIDEBAR (SETTINGS SHEET) */}
+      {/*iii. THE NEW RIGHT SIDEBAR (SETTINGS SHEET) - hidden on mobile */}
+      <Box className="hidden md:flex h-full border-0">
       <Sidebar
         variant="glass"
         layout="docked"
@@ -213,6 +216,7 @@ export default function BuildPage({ form, user }: BuildPageInput) {
           )
         }
       />
+      </Box>
     </Stack>
   )
 }

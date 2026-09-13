@@ -77,12 +77,12 @@ export default function AnalyticsCanvas({
     <Stack
       direction="vertical"
       align="stretch"
-      className="w-full py-xl px-l gap-8"
+      className="w-full py-m sm:py-xl px-m sm:px-l gap-4 sm:gap-8"
     >
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <Stack
         direction="horizontal"
-        className="items-center justify-between w-full"
+        className="items-start sm:items-center justify-between w-full flex-col sm:flex-row gap-m sm:gap-0"
       >
         <Stack direction="horizontal" className="items-center gap-4">
           <Text variant="h1" weight="bold" color="primary">
@@ -103,7 +103,7 @@ export default function AnalyticsCanvas({
       </Stack>
 
       {/* ── High-Level Metrics ───────────────────────────────────────────── */}
-      <Stack direction="horizontal" className="gap-10 p-6 w-full">
+      <Stack direction="horizontal" className="gap-m sm:gap-10 p-m sm:p-6 w-full flex-col sm:flex-row">
         <Stat
           label="Total Views"
           className="flex-1 "
@@ -162,15 +162,15 @@ export default function AnalyticsCanvas({
       )}
 
       {/* ── Bigger components started. ─────────────────────────────────────── */}
-      <Stack className="px-2 w-full mt-8">
-        <Stack className=" w-full">
+      <Stack className="px-0 sm:px-2 w-full mt-4 sm:mt-8">
+        <Stack className="w-full">
           <Text variant={'h2'} weight={'bold'}>
             Each Question Analysis
           </Text>
           <Stack
             direction="vertical"
             align="stretch"
-            className="w-full gap-20  px-3 py-1"
+            className="w-full gap-10 sm:gap-20 px-0 sm:px-3 py-1"
           >
             {safeLayout.map((block) => {
               const blockType = DB_TYPE_TO_FORM_BLOCK_TYPE[block.type]
