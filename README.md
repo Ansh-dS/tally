@@ -83,7 +83,7 @@ TallyBuilder relies on a decoupled, event-driven architecture to ensure maximum 
 3. **Configure environment variables:**
    Create a `.env` file in the root directory and add your credentials:
    ```env
-   REDIS_URL="redis://localhost:6379"
+   REDIS_URL="redis://localhost:6379"oc 
    Groq_API_KEY="your_groq_api_key"
    DATABASE_URL="postgresql://user:password@localhost:55432/tallydb?schema=public"
    JWT_ACCESS_TOKEN_SECRET=""

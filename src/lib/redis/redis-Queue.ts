@@ -32,10 +32,12 @@ export interface visitorJob {
 // we need credentials here so our queue can able to connect to redis.
 export const formQueue = new Queue<formJob>('formQueue', {
   connection: redisOptions,
+  defaultJobOptions: { removeOnComplete: true, removeOnFail: true },
 })
 
 export const visitorQueue = new Queue<visitorJob>('visitorQueue', {
   connection: redisOptions,
+  defaultJobOptions: { removeOnComplete: true, removeOnFail: true },
 })
 
 export interface AiDropOffJob {
@@ -44,10 +46,12 @@ export interface AiDropOffJob {
 
 export const aiDropOffsQueue = new Queue<AiDropOffJob>('ai-dropoffs-queue', {
   connection: redisOptions,
+  defaultJobOptions: { removeOnComplete: true, removeOnFail: true },
 })
 
 // Register the repeatable cron job for the producer
 // sec, miniute, hour, everyday, month, hour=> {a, b, c, d, e, f}
+/*
 aiDropOffsQueue.add(
   'daily-ai-dropoffs-producer',
   {},
@@ -55,3 +59,4 @@ aiDropOffsQueue.add(
     repeat: { pattern: '0 0 0 * * *' },
   }
 )
+*/

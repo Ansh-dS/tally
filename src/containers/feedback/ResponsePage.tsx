@@ -56,11 +56,10 @@ export function ResponsePage({
   const header = formData?.header ?? { title: '', description: '' }
 
   // --- PAGINATION CONFIGURATION ---
-  const X_THRESHOLD = 5 // If blocks > 5, we paginate
   const Y_SUBPARTS = 2 // How many blocks to show per page
 
-  // 1. Determine if we should paginate
-  const isPaginated = blocks.length > X_THRESHOLD
+  // 1. Determine if we should paginate (when blocks exceed a single page)
+  const isPaginated = blocks.length > Y_SUBPARTS
 
   // 2. Calculate Total Pages
   const totalPages = isPaginated ? Math.ceil(blocks.length / Y_SUBPARTS) : 1
@@ -74,7 +73,8 @@ export function ResponsePage({
   }, [blocks, currentPage, isPaginated, Y_SUBPARTS])
 
   // --- HANDLERS ---
-  const handleNext = () => {
+  const handleNext = (e: React.MouseEvent) => {
+    e.preventDefault()
     if (currentPage < totalPages - 1) setCurrentPage((p) => p + 1)
   }
 
@@ -249,10 +249,10 @@ export function ResponsePage({
                       visitorDetails={
                         visitorProgress
                           ? {
-                              visitorId: visitorProgress.visitorId,
-                              userAgent: visitorProgress.userAgent,
-                              formId: visitorProgress.formId,
-                            }
+                            visitorId: visitorProgress.visitorId,
+                            userAgent: visitorProgress.userAgent,
+                            formId: visitorProgress.formId,
+                          }
                           : null
                       }
                     />
@@ -289,11 +289,12 @@ export function ResponsePage({
           </Button>
 
           {!isPaginated || currentPage === totalPages - 1 ? (
-            <Button variant="primary" size="md" type="submit">
+            <Button key="submit-btn" variant="primary" size="md" type="submit">
               Submit
             </Button>
           ) : (
             <Button
+              key="next-btn"
               variant="primary"
               size="md"
               type="button"

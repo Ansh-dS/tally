@@ -26,11 +26,11 @@ export async function getAuthorizedUser(
         3. in login or other page we first need to decode the path using 'decodeURIComponent.
     */
   // Refresh tokens via Route Handler (mutates cookies).
-  if (auth.status === 'error') {
+  if (auth.status === 'failed') {
     redirect(`/api/auth/refresh?callbackUrl=${encodeURIComponent(currentPath)}`)
   }
 
-  if (auth.status === 'failed') {
+  if (auth.status === 'error') {
     redirect(`/login?callbackUrl=${encodeURIComponent(currentPath)}`)
   }
 

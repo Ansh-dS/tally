@@ -35,14 +35,14 @@ export default function SharePage(SharePageInput: { formId: string }) {
     <Stack
       direction="horizontal"
       // Parent container: fills height, hides overflow to lock the preview
-      className="w-full overflow-x-hidden"
+      className="w-full overflow-x-hidden flex-col lg:flex-row"
       gap="none" // Ensure no gap between the two main panes
     >
       {/* LEFT PANEL: Settings
           - flex-1: Tells it to grow and take its fair share of space
           - min-w-[400px]: PREVENTS the "one-word-per-line" collapse in your screenshot
       */}
-      <Box className="flex-1 h-full overflow-y-auto border-0 w-full">
+      <Box className="w-full lg:flex-1 h-auto lg:h-full overflow-y-auto border-0">
         <Stack gap="lg" className="p-2xl">
           <Stack gap="sm" className="w-full">
             <Text variant="h1" weight="bold">
@@ -215,7 +215,7 @@ export default function SharePage(SharePageInput: { formId: string }) {
         justify={'center'}
         align={'center'}
         gap={'md'}
-        className=" lg:flex flex-[1.5] h-full bg-surface-sunken p-10 relative"
+        className="hidden lg:flex flex-[1.5] h-full bg-surface-sunken p-10 relative"
       >
         <Badge className="absolute top-m" color={'success'}>
           Display Preview

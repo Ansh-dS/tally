@@ -42,7 +42,7 @@ export function CheckFormPass({ hashedPassword }: CheckFormPassProps) {
     >
       <Box
         as="section"
-        className="w-full max-w-120 border-0 bg-transparent p-4 shadow-none rounded-none"
+        className="w-full max-w-full sm:max-w-120 border-0 bg-transparent p-4 shadow-none rounded-none"
       >
         <EmptyState
           variant="default"

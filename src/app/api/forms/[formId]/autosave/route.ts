@@ -111,7 +111,7 @@ function validateSnapshot(snapshot: unknown): snapshot is FormSnapshot {
  */
 async function authenticate(path: string) {
   let authRes = await protectApiRoute(path)
-  if (authRes.status === 'error') {
+  if (authRes.status === 'failed') {
     const refreshRes = await tryRefreshToken(path)
     if (refreshRes.status === 'success') authRes = await protectApiRoute(path)
   }

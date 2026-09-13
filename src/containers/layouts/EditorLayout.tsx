@@ -13,17 +13,15 @@ import { Header } from '@primitives/Header/Header'
 import { DropdownMenu } from '@/components/ui/DropDown/DropDown'
 import { Stack } from '@primitives/Stack/Stack'
 import { Tabs, TabsList, TabsTrigger } from '@primitives/Tabs/Tabs'
-import { Text } from '@primitives/Text/Text'
 import { Spinner } from '@primitives/Spinner/Spinner'
 import { useRouter } from 'next/navigation'
-import { CheckCircle2, LogOut, Settings } from 'lucide-react'
+import { CheckCircle2, LogOut } from 'lucide-react'
 import { useStore } from '@utils/store'
 import { logout } from '../../action/dashboard'
 import { handlePreview } from '@/containers/feedback/previewPage'
 import { useCallback, useState, useEffect } from 'react'
 import { publishForm } from '@actions/form'
 import { useToast } from '@/components/ui/ToastProvider/ToastProvider'
-import hashPassword from '@utils/hash'
 import type { EditorForm } from '@/lib/utils/data-fetchers'
 
 type EditorTab = 'build' | 'share' | 'results'
@@ -156,10 +154,10 @@ export default function EditorLayout({
     <Stack direction={'vertical'} gap={'none'} className="h-screen w-screen ">
       {/* First element */}
       <Header
-        className="z-popover h-16 px-xl"
+        className="z-popover h-16 px-m sm:px-xl"
         navPosition="left"
         actions={
-          <Stack direction="horizontal" align="center" className="gap-s">
+          <Stack direction="horizontal" align="center" className="gap-xs sm:gap-s">
             <Badge
               startIcon={
                 isLoading ? (
@@ -181,6 +179,7 @@ export default function EditorLayout({
               variant="outline"
               size="sm"
               onClick={() => handlePreview(formId)}
+              className="hidden sm:inline-flex"
             >
               Preview
             </Button>
@@ -226,7 +225,7 @@ export default function EditorLayout({
           </Stack>
         }
         logo={
-          <Box className="min-w-62.5 border-0">
+          <Box className="hidden sm:block min-w-62.5 border-0">
             <Breadcrumb size="sm" variant="default">
               <BreadcrumbItem>
                 <BreadcrumbLink to="/forms">Home</BreadcrumbLink>

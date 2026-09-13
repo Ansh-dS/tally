@@ -127,15 +127,15 @@ export const Sidebar = forwardRef<HTMLElement, SidebarProps>((props, ref) => {
 
             // 2. POSITION: LEFT SIDEBAR
             position === 'left' &&
-              (isFullyHidden
-                ? '-right-5 rounded-r-md border-l-0' // Fuses flat to the left screen edge
-                : '-right-3'), // Floats on the dividing line
+            (isFullyHidden
+              ? '-right-5 rounded-r-md border-l-0' // Fuses flat to the left screen edge
+              : '-right-3'), // Floats on the dividing line
 
             // 3. POSITION: RIGHT SIDEBAR
             position === 'right' &&
-              (isFullyHidden
-                ? '-left-5 rounded-l-md border-r-0' // Fuses flat to the right screen edge
-                : '-left-5') // Floats over the scrollbar
+            (isFullyHidden
+              ? '-left-5 rounded-l-md border-r-0' // Fuses flat to the right screen edge
+              : '-left-5') // Floats over the scrollbar
           )}
         >
           <ToggleIcon size={14} className="text-fg-secondary" />
@@ -272,8 +272,8 @@ export const SidebarItem = forwardRef<HTMLButtonElement, SidebarItemProps>(
 
     const sizedIcon = React.isValidElement(icon)
       ? React.cloneElement(icon as React.ReactElement<{ size?: number }>, {
-          size: resolvedIconSize,
-        })
+        size: resolvedIconSize,
+      })
       : icon
 
     const resolvedTextVariant =
@@ -387,7 +387,7 @@ export const CollapsibleContent = ({
            - w-0: Shrink container. (Step 2)
            - invisible: Shutter lock/Clipping. (Step 3)
         */
-          'opacity-0 w-0 invisible -translate-x-2'
+        'opacity-0 w-0 invisible -translate-x-2'
         : 'opacity-100 w-auto visible translate-x-0'
     )}
   >

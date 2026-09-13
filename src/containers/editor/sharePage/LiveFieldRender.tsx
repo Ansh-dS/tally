@@ -108,6 +108,7 @@ export function LiveFieldRenderer({
               <Checkbox
                 {...registerAnswers()}
                 key={idx}
+                value={opt}
                 label={opt}
                 disabled={disabled}
                 onBlur={() => {
@@ -128,6 +129,7 @@ export function LiveFieldRenderer({
               <Radio
                 {...registerAnswers()}
                 key={idx}
+                value={opt}
                 label={opt}
                 disabled={disabled}
                 onBlur={() => {
@@ -176,7 +178,7 @@ export function LiveFieldRenderer({
             {fieldLabel}
             <Switch
               {...registerAnswers()}
-              checked={data?.defaultChecked || false}
+              defaultChecked={data?.defaultChecked || false}
               disabled={disabled}
               onBlur={() => {
                 syncVisitorProgress()
@@ -191,7 +193,7 @@ export function LiveFieldRenderer({
         <Box
           className={`w-full pt-4 border-0 px-m bg-transparent ${disabled ? 'cursor-not-allowed' : ''}`}
         >
-          <Button variant="primary" size="md" fullWidth disabled={disabled}>
+          <Button variant="primary" size="md" fullWidth disabled={disabled} type="button">
             {/* Buttons use children, not placeholder */}
             {data?.buttonText || 'Submit'}
           </Button>

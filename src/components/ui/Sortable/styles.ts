@@ -1,4 +1,3 @@
-// packages/ui/src/components/Sortable/styles.ts
 import { cva, type VariantProps } from 'class-variance-authority'
 
 export const sortableZoneVariants = cva(

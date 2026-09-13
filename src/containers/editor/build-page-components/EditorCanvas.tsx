@@ -49,7 +49,7 @@ function CanvasBlock({
       isSelected={isSelected}
       isDragging={isDragging}
       isDropTarget={isDropTarget}
-      className="w-full"
+      className="w-full min-w-0"
     >
       <SortableActions>
         <SortableDragHandle ref={handleRef} />
@@ -63,7 +63,7 @@ function CanvasBlock({
           <Trash size={16} />
         </SortableAction>
       </SortableActions>
-      <div className="flex-1 p-m pl-0">{preview}</div>
+      <div className="flex-1 min-w-0 p-m pl-0">{preview}</div>
     </SortableItem>
   )
 }
@@ -146,7 +146,7 @@ export default function EditorCanvas({
 
   return (
     <Box
-      className="flex-1 min-w-0 m-s h-full p-2xl border-0 text-fg-primary"
+      className="flex-1 min-w-0 m-s h-full overflow-y-auto p-2xl border-0 text-fg-primary"
       onClick={(e) => {
         // If the user clicks the empty canvas background, deselect the active block
         if (e.target === e.currentTarget) {
@@ -173,7 +173,7 @@ export default function EditorCanvas({
       </Stack>
 
       {/* 2. DYNAMIC SORTABLE AREA */}
-      <Stack className="mt-xl h-full" gap="md">
+      <Stack className="mt-xl" gap="md">
         {/* Here is where your SortableContext maps through blocks. 
            If empty, show the EmptyState component.
 

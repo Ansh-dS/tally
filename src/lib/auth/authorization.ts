@@ -14,7 +14,7 @@ export async function protectApiRoute(
   const result = await validateSession(path)
 
   // Step 2: Handle token refresh requirements or authorization failures.
-  if (result.status === 'error') {
+  if (result.status === 'failed') {
     return errorResponse({
       statusCode: 401,
       message: 'Refresh required',
@@ -23,7 +23,7 @@ export async function protectApiRoute(
     })
   }
 
-  if (result.status === 'failed') {
+  if (result.status === 'error') {
     return failedResponse({
       statusCode: result.error === 'no_tokens' ? 401 : 403,
       message:

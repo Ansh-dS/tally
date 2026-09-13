@@ -68,10 +68,10 @@ export default function FormsDashboard({
   function handleDuplicate(formId: string) {}
 
   return (
-    <Box className="w-full border-0 p-xl">
+    <Box className="w-full border-0 p-m sm:p-xl">
       {/* Header Zone */}
       <Stack
-        className="justify-between w-full mb-3xl mt-xl"
+        className="justify-between w-full mb-xl sm:mb-3xl mt-m sm:mt-xl flex-col sm:flex-row gap-m sm:gap-0"
         direction="horizontal"
         align="center"
       >
@@ -96,7 +96,7 @@ export default function FormsDashboard({
 
       {/* Stats Zone */}
       <Stack justify={'center'} align={'center'}>
-        <Stack direction="horizontal" className="gap-xl w-full mb-3xl">
+        <Stack direction="horizontal" className="gap-m sm:gap-xl w-full mb-xl sm:mb-3xl flex-col sm:flex-row">
           <Stat
             label="Total Views"
             value={formsAndStat.globalStats.totalViews}
@@ -170,7 +170,7 @@ export default function FormsDashboard({
                 <DataListItem
                   key={form.formId}
                   interactive
-                  className="flex items-center justify-between p-m"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-m gap-m sm:gap-0"
                 >
                   <Stack gap="sm" className="border-0 bg-transparent">
                     <Stack

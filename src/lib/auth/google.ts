@@ -60,6 +60,7 @@ export function buildGoogleAuthUrl(callbackUrl: string): {
   url: string
   nonce: string
 } {
+  // making a client like redis and other external service.
   const oauth2Client = getOAuth2Client()
 
   // Cryptographically random nonce for CSRF protection.

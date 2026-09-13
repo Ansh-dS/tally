@@ -1,7 +1,7 @@
 'use client'
 
 import { useDraggable } from '@dnd-kit/react'
-import { Box } from '@primitives/Box/Box' // Removed Stack, we will use Tailwind Flex
+import { Box } from '@primitives/Box/Box'
 import { Text } from '@primitives/Text/Text'
 import { BlockType } from '@utils/store'
 import { BLOCK_REGISTRY } from './blocks/blockRegistry'
