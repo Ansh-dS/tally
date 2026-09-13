@@ -51,7 +51,7 @@ export async function createForm(
     })
 
     // freah data would render.
-    revalidatePath('/dashboard', 'page')
+    revalidatePath('/forms')
 
     return successResponse({
       statusCode: 201,
@@ -97,7 +97,7 @@ export async function updateForm(input: updateInputs, path: string) {
     }
 
     // freah data would render.
-    revalidatePath('/dashboard', 'page')
+    revalidatePath('/forms')
     revalidatePath(`/${formId}/edit`, 'page')
 
     return successResponse({
@@ -157,7 +157,7 @@ export async function publishForm(
       })
     }
 
-    revalidatePath('/dashboard', 'page')
+    revalidatePath('/forms', 'page')
     revalidatePath(`/forms/${input.formId}/edit`, 'page')
 
     return successResponse({

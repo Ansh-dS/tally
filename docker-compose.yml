@@ -38,9 +38,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # we wrote 'pnpm start' as it replace Dockerfile '['pnpm', 'start']'. 
+    # we wrote 'pnpm start' as it replace Dockerfile '['pnpm', 'start']'.
     # sh: run a sheel inside docker container, -c: run this command.
-    command: sh -c "pnpm prisma migrate deploy && pnpm start" # we have built containers, now we can talk to them, as 'migrate' creates table inside the prisma 
+    command: sh -c "pnpm prisma migrate deploy && pnpm start" # we have built containers, now we can talk to them, as 'migrate' creates table inside the prisma
     container_name: tally-web
     restart: always
     ports:

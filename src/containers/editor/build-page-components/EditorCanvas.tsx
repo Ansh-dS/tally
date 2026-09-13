@@ -106,7 +106,7 @@ export default function EditorCanvas({
     const timerId = setTimeout(async () => {
       try {
         // 2. Use currentId instead of the prop formId
-        const res = await fetch(`/api/forms/${currentId}/autosave/`, {
+        const res = await fetch(`/api/forms/${currentId}/autosave`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ header, blocks }),
