@@ -56,7 +56,6 @@ export async function syncFormToDatabase(formId: string, payload?: formType) {
 }
 
 export async function syncVisitorProgress(data: VisitorProgress | undefined) {
-  console.log(data)
   if (!data) {
     throw new Error('WORKER: missing visitor progress')
   }
