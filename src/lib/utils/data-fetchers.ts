@@ -55,66 +55,73 @@ export async function getEditorData(formId: string, path: string) {
   // 1. Authenticate user securely on the server
   const userData = await getAuthorizedUser(path)
 
-  // run when form is not new.
-  if (formId !== 'new') {
-    // 2. Try fast Redis hydration FIRST (bypasses Prisma completely)
-    try {
-      const redisData = await redisClient.get(`draft:form:${formId}`)
-      if (redisData) {
-        const snapshot = JSON.parse(redisData)
-        return {
-          userData,
-          form: {
-            id: formId,
-            title: snapshot.title ?? 'Untitled Form',
-            description: snapshot.description ?? null,
-            published: snapshot.published ?? false,
-            blocks: snapshot.blocks,
-          } as EditorForm,
-        }
-      }
-    } catch (err) {
-      console.warn(
-        `[getEditorData] Failed to hydrate from Redis for form ${formId}:`,
-        err
-      )
-    }
-
-    // 3. Fetch the specific form, including the heavy JSON blocks
-    const form = await prismaClient.form.findUnique({
-      where: {
-        id: formId,
-        userId: userData.id, // Security check to ensure ownership
+  // When formId is 'new', create a real DB row immediately and redirect to its URL.
+  // This ensures all subsequent requests (autosave, publish) use a valid ID.
+  if (formId === 'new') {
+    const newForm = await prismaClient.form.create({
+      data: {
+        title: 'Untitled Form',
+        blocks: '[]',
+        settings: {},
+        userId: userData.id,
       },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        blocks: true, // for the editor canvas
-        published: true,
-      },
+      select: { id: true },
     })
+    redirect(`/forms/${newForm.id}/edit`)
+  }
 
-    if (form === null) {
-      redirect('/forms?warning=form_not_found')
-      // use an alret to tell the user that fomId doesn't exist.
+  // 2. Try fast Redis hydration FIRST (bypasses Prisma completely)
+  try {
+    const redisData = await redisClient.get(`draft:form:${formId}`)
+    if (redisData) {
+      const snapshot = JSON.parse(redisData)
+      return {
+        userData,
+        form: {
+          id: formId,
+          title: snapshot.title ?? 'Untitled Form',
+          description: snapshot.description ?? null,
+          published: snapshot.published ?? false,
+          blocks: snapshot.blocks,
+        } as EditorForm,
+      }
     }
+  } catch (err) {
+    console.warn(
+      `[getEditorData] Failed to hydrate from Redis for form ${formId}:`,
+      err
+    )
+  }
 
-    return {
-      userData,
-      form: {
-        id: form.id,
-        title: form.title,
-        description: form.description,
-        published: form.published,
-        blocks: form.blocks as unknown as FormBlock[],
-      } as EditorForm,
-    }
+  // 3. Fetch the specific form, including the heavy JSON blocks
+  const form = await prismaClient.form.findUnique({
+    where: {
+      id: formId,
+      userId: userData.id, // Security check to ensure ownership
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      blocks: true, // for the editor canvas
+      published: true,
+    },
+  })
+
+  if (form === null) {
+    redirect('/forms?warning=form_not_found')
+    // use an alret to tell the user that fomId doesn't exist.
   }
 
   return {
     userData,
-    form: null,
+    form: {
+      id: form.id,
+      title: form.title,
+      description: form.description,
+      published: form.published,
+      blocks: form.blocks as unknown as FormBlock[],
+    } as EditorForm,
   }
 }
 
@@ -227,8 +234,8 @@ export async function getFormsAndDashboardStats(
       const conversionRatio =
         formStats.views > 0
           ? parseFloat(
-              ((formStats.submissions / formStats.views) * 100).toFixed(1)
-            )
+            ((formStats.submissions / formStats.views) * 100).toFixed(1)
+          )
           : 0
 
       if (form.published) {

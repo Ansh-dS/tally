@@ -35,6 +35,7 @@ export default async function EditorBuilderPage({
       </EditorLayout>
     )
   }
+  
 
   const { userData, form } = await getEditorData(formId, currentPath)
   return (

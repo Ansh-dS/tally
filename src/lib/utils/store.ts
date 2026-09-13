@@ -155,10 +155,10 @@ export const useStore = create<storeData>((set) => ({
       }
 
       const blocks = [...state.blocks]
-      ;[blocks[sourceIndex], blocks[targetIndex]] = [
-        blocks[targetIndex],
-        blocks[sourceIndex],
-      ]
+        ;[blocks[sourceIndex], blocks[targetIndex]] = [
+          blocks[targetIndex],
+          blocks[sourceIndex],
+        ]
 
       return { blocks }
     }),
