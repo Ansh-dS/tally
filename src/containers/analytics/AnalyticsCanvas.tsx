@@ -162,31 +162,16 @@ export default function AnalyticsCanvas({
       )}
 
       {/* ── Bigger components started. ─────────────────────────────────────── */}
-      <Stack className="px-0 sm:px-2 w-full mt-4 sm:mt-8">
-        <Stack className="w-full">
-          <Text variant={'h2'} weight={'bold'}>
-            Each Question Analysis
-          </Text>
-          <Stack
-            direction="vertical"
-            align="stretch"
-            className="w-full gap-10 sm:gap-20 px-0 sm:px-3 py-1"
-          >
-            {safeLayout.map((block) => {
-              const blockType = DB_TYPE_TO_FORM_BLOCK_TYPE[block.type]
-              const blockData = aggregatedBlocks[block.id]
-
-              if (!blockData || !blockData.data) return null
       {!isColdStart && !isAiProcessing && (
-        <Stack className="px-2 w-full mt-8">
-          <Stack className=" w-full">
+        <Stack className="px-0 sm:px-2 w-full mt-4 sm:mt-8">
+          <Stack className="w-full">
             <Text variant={'h2'} weight={'bold'}>
               Each Question Analysis
             </Text>
             <Stack
               direction="vertical"
               align="stretch"
-              className="w-full gap-20  px-3 py-1"
+              className="w-full gap-10 sm:gap-20 px-0 sm:px-3 py-1"
             >
               {safeLayout.map((block) => {
                 const blockType = DB_TYPE_TO_FORM_BLOCK_TYPE[block.type]
