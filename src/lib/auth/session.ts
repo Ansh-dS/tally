@@ -19,8 +19,8 @@ type AuthenticatedUser = {
 
 type AuthCheckResult =
   | { status: 'success'; data: AuthenticatedUser }
-  | { status: 'error'; error: 'refresh_required' }
-  | { status: 'failed'; error: 'no_tokens' | 'unauthorized' }
+  | { status: 'failed'; error: 'refresh_required' }
+  | { status: 'error'; error: 'no_tokens' | 'unauthorized' }
 
 type RefreshResult =
   | { status: 'success'; data: { userId: string } }
@@ -40,7 +40,7 @@ interface sessionsData {
 }
 
 // Validate tokens and database identity for authentication.
-export async function validateSessionCore(
+export async function verifyAccessTokenAndUser(
   path: string
 ): Promise<Partial<ApiResponse<sessionsData | unknown>>> {
   // Step 1: Retrieve the JWT Access Token from cookies.
@@ -95,7 +95,7 @@ export async function validateSession(
   const path = currentPath || '/dashboard'
 
   // Step 1: Leverage the "Centralized Brain" for primary validation
-  const session = await validateSessionCore(path)
+  const session = await verifyAccessTokenAndUser(path)
 
   // Step 2: Handle Successful Authentication
   if (session.status === 'success' && session.data) {
@@ -116,7 +116,7 @@ export async function validateSession(
 
   if (refreshToken) {
     // If the brain failed but a refresh token exists, we trigger the rotation logic
-    return { status: 'error', error: 'refresh_required' }
+    return { status: 'failed', error: 'refresh_required' }
   }
 
   // Step 4: Final Fallback for unauthenticated users
@@ -124,7 +124,7 @@ export async function validateSession(
   const isMissingToken = session.message === "Cant' find Access Token"
 
   return {
-    status: 'failed',
+    status: 'error',
     error: isMissingToken ? 'no_tokens' : 'unauthorized',
   }
 }

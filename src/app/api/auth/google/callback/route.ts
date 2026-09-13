@@ -21,7 +21,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { exchangeCodeForUser, type OAuthStatePayload } from '@/lib/auth/google'
 import { generateAccessToken, generateRefreshToken } from '@/lib/auth/jwt'
-import { accessTokenCookie, refreshTokenCookie } from '@/lib/auth/cookies'
 import { prismaClient } from '@/lib/db/client'
 
 export async function GET(request: NextRequest) {

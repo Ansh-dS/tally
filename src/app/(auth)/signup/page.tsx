@@ -60,7 +60,7 @@ export default function SignupPage() {
         direction="vertical"
         align="center"
         gap="lg"
-        className="w-full max-w-100"
+        className="w-full px-m sm:px-0 max-w-full sm:max-w-md md:max-w-100"
       >
         {/* Header - Brand Identity */}
         <Text
