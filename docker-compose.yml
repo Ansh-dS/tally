@@ -78,9 +78,29 @@ services:
     profiles:
       - prod # This hides the container from local development!
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: tally-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    networks:
+      - tally-network
+    profiles:
+      - prod
+
 volumes:
   postgres_data:
   redis_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   tally-network: # only tally inside containers can able to see each other.

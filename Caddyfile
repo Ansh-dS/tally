@@ -1,0 +1,3 @@
+tally-forms.duckdns.org {
+    reverse_proxy web:3000
+}
