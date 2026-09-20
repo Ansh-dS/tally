@@ -35,6 +35,7 @@ services:
 
   # --- PRODUCTION ONLY CONTAINERS BELOW ---
   web:
+    image: tally-app:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -59,6 +60,7 @@ services:
       - prod # This hides the container from local development!
 
   worker:
+    image: tally-app:latest
     build:
       context: .
       dockerfile: Dockerfile
