@@ -27,7 +27,8 @@ export const checkboxVariants = cva(
       size: { sm: 'w-4 h-4', md: 'w-5 h-5' },
       color: {
         primary: 'checked:!bg-action-primary checked:!border-action-primary',
-        secondary: 'checked:!bg-action-secondary checked:!border-action-secondary',
+        secondary:
+          'checked:!bg-action-secondary checked:!border-action-secondary',
       },
     },
     defaultVariants: { variant: 'solid', size: 'md', color: 'primary' },

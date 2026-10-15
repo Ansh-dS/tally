@@ -13,10 +13,7 @@ export const radioVariants = cva(
   {
     variants: {
       variant: {
-        solid: [
-          'bg-surface-base',
-          'border border-border-default',
-        ],
+        solid: ['bg-surface-base', 'border border-border-default'],
         glass: [
           'bg-surface-base/30',
           'backdrop-blur-md',
@@ -39,17 +36,20 @@ export const radioVariants = cva(
       {
         variant: 'solid',
         color: 'secondary',
-        className: 'checked:bg-action-secondary checked:border-action-secondary',
+        className:
+          'checked:bg-action-secondary checked:border-action-secondary',
       },
       {
         variant: 'glass',
         color: 'primary',
-        className: 'checked:bg-action-primary/80 checked:border-action-primary/80',
+        className:
+          'checked:bg-action-primary/80 checked:border-action-primary/80',
       },
       {
         variant: 'glass',
         color: 'secondary',
-        className: 'checked:bg-action-secondary/80 checked:border-action-secondary/80',
+        className:
+          'checked:bg-action-secondary/80 checked:border-action-secondary/80',
       },
     ],
     defaultVariants: { variant: 'solid', size: 'md', color: 'primary' },

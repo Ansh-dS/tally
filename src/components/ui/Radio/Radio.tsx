@@ -41,7 +41,11 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>((props, ref) => {
         className={cn(radioVariants({ color, size, variant }), className)}
         {...rest}
       />
-      {label && <Text as="span" className="text-body text-fg-primary select-none">{label}</Text>}
+      {label && (
+        <Text as="span" className="text-body text-fg-primary select-none">
+          {label}
+        </Text>
+      )}
     </label>
   )
 })

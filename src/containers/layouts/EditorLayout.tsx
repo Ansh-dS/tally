@@ -157,7 +157,11 @@ export default function EditorLayout({
         className="z-popover h-16 px-m sm:px-xl"
         navPosition="left"
         actions={
-          <Stack direction="horizontal" align="center" className="gap-xs sm:gap-s">
+          <Stack
+            direction="horizontal"
+            align="center"
+            className="gap-xs sm:gap-s"
+          >
             <Badge
               startIcon={
                 isLoading ? (

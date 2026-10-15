@@ -26,9 +26,9 @@ import LazyChartCard from './charts/LazyChartCard'
 import QualitativeIntentChart from './charts/QualitativeIntentChart'
 import SentimentChart from './charts/SentimentChart'
 import BinaryStatWidget from './charts/BinaryStatWidget'
+import LongTextAnalyticsCard from './charts/LongTextAnalyticsCard'
 import { DB_TYPE_TO_FORM_BLOCK_TYPE } from '@/lib/analytics/types'
 import { EmptyState } from '@/components/ui/EmptyState/EmptyState'
-import { Spinner } from '@/components/ui/Spinner/Spinner'
 
 export interface AnalyticsCanvasProps {
   data: FormAggregationResult
@@ -60,19 +60,6 @@ export default function AnalyticsCanvas({
     (block) => DB_TYPE_TO_FORM_BLOCK_TYPE[block.type] === 'LONG TEXT'
   )
 
-  // Check if we have text submissions but no globalSummary
-  const hasTextSubmissions =
-    hasLongTextBlocks &&
-    safeLayout.some((block) => {
-      if (DB_TYPE_TO_FORM_BLOCK_TYPE[block.type] === 'LONG TEXT') {
-        const blockData = aggregatedBlocks[block.id]?.data
-        return Array.isArray(blockData) && blockData.length > 0
-      }
-      return false
-    })
-
-  const isAiProcessing = hasTextSubmissions && !formInsight?.globalSummary
-
   return (
     <Stack
       direction="vertical"
@@ -103,7 +90,10 @@ export default function AnalyticsCanvas({
       </Stack>
 
       {/* ── High-Level Metrics ───────────────────────────────────────────── */}
-      <Stack direction="horizontal" className="gap-m sm:gap-10 p-m sm:p-6 w-full flex-col sm:flex-row">
+      <Stack
+        direction="horizontal"
+        className="gap-m sm:gap-10 p-m sm:p-6 w-full flex-col sm:flex-row"
+      >
         <Stat
           label="Total Views"
           className="flex-1 "
@@ -134,20 +124,6 @@ export default function AnalyticsCanvas({
         </Stack>
       )}
 
-      {isAiProcessing && (
-        <Stack
-          direction={'horizontal'}
-          justify={'center'}
-          align={'center'}
-          className="border-0 p-2xl "
-        >
-          <Spinner variant={'riverside'} size={'md'} />
-          <Text variant="body" color="primary">
-            AI is currently processing your open-ended responses...
-          </Text>
-        </Stack>
-      )}
-
       {!hasLongTextBlocks && totalSubmissions > 0 && (
         <Stack justify={'center'}>
           <Alert
@@ -161,8 +137,13 @@ export default function AnalyticsCanvas({
         </Stack>
       )}
 
+<<<<<<< Updated upstream
       {/* ── Bigger components started. ─────────────────────────────────────── */}
       {!isColdStart && !isAiProcessing && (
+=======
+      {/* ── Question Analysis Section ────────────────────────────────────────── */}
+      {!isColdStart && (
+>>>>>>> Stashed changes
         <Stack className="px-0 sm:px-2 w-full mt-4 sm:mt-8">
           <Stack className="w-full">
             <Text variant={'h2'} weight={'bold'}>
@@ -180,41 +161,32 @@ export default function AnalyticsCanvas({
                 if (!blockData || !blockData.data) return null
 
                 switch (blockType) {
-                  // 1.
+                  // 1. Long Text (On-Demand AI Semantic Analysis)
                   case 'LONG TEXT': {
-                    // Extract the qualitative insight for this specific block, if it exists
                     const globalSummary = formInsight?.globalSummary as
                       | Record<string, FormQualitativeInsight>
                       | undefined
                     const insight = globalSummary?.[block.id]
+                    const rawResponses: string[] = Array.isArray(blockData.data)
+                      ? (blockData.data as Array<string | { value?: string }>)
+                          .map((item) =>
+                            typeof item === 'string'
+                              ? item
+                              : (item?.value ?? '')
+                          )
+                          .filter(Boolean)
+                      : []
 
                     return (
-                      <LazyChartCard
+                      <LongTextAnalyticsCard
                         key={block.id}
-                        title={block.label}
-                        skeletonHeight={450}
-                      >
-                        <Stack align="stretch" className="gap-2xl">
-                          {insight ? (
-                            <>
-                              <QualitativeIntentChart
-                                data={insight.intentTags}
-                                questionLabel={`${block.label} (Intent)`}
-                              />
-                              <SentimentChart
-                                data={insight.sentimentSplit}
-                                questionLabel={`${block.label} (Sentiment)`}
-                              />
-                            </>
-                          ) : (
-                            <Box className="flex h-48 w-full items-center justify-center rounded-medium bg-surface-sunken pt-2">
-                              <Text variant="body" color="secondary">
-                                Waiting for AI processing...
-                              </Text>
-                            </Box>
-                          )}
-                        </Stack>
-                      </LazyChartCard>
+                        formId={data.formId}
+                        blockId={block.id}
+                        blockLabel={block.label}
+                        initialInsight={insight}
+                        rawResponses={rawResponses}
+                        isDemo={isDemo}
+                      />
                     )
                   }
 

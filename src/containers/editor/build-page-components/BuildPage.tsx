@@ -179,43 +179,43 @@ export default function BuildPage({ form, user }: BuildPageInput) {
 
       {/*iii. THE NEW RIGHT SIDEBAR (SETTINGS SHEET) - hidden on mobile */}
       <Box className="hidden md:flex h-full border-0">
-      <Sidebar
-        variant="glass"
-        layout="docked"
-        collapsed={isCollapsed}
-        size={'narrow'}
-        collapseMode="hide"
-        className="sticky border-0 bg-surface-sunken/80"
-        position="right"
-        showToggle={true}
-        onToggle={() => {
-          setCollapsed(!isCollapsed)
-        }}
-        header={
-          <Text variant="body" weight="bold" className="py-s pr-s">
-            Block Settings
-          </Text>
-        }
-        children={
-          selectedBlock && SettingsComponent ? (
-            <Stack gap="sm" className="p-m">
-              {/* Render the specific settings component for the clicked block */}
-              <SettingsComponent
-                block={selectedBlock}
-                updateBlock={updateBlock}
-              />
-            </Stack>
-          ) : (
-            <Box className="h-full border-0 flex items-center ">
-              <EmptyState
-                title="No Block Selected"
-                variant="minimal"
-                className="select-none"
-              />
-            </Box>
-          )
-        }
-      />
+        <Sidebar
+          variant="glass"
+          layout="docked"
+          collapsed={isCollapsed}
+          size={'narrow'}
+          collapseMode="hide"
+          className="sticky border-0 bg-surface-sunken/80"
+          position="right"
+          showToggle={true}
+          onToggle={() => {
+            setCollapsed(!isCollapsed)
+          }}
+          header={
+            <Text variant="body" weight="bold" className="py-s pr-s">
+              Block Settings
+            </Text>
+          }
+          children={
+            selectedBlock && SettingsComponent ? (
+              <Stack gap="sm" className="p-m">
+                {/* Render the specific settings component for the clicked block */}
+                <SettingsComponent
+                  block={selectedBlock}
+                  updateBlock={updateBlock}
+                />
+              </Stack>
+            ) : (
+              <Box className="h-full border-0 flex items-center ">
+                <EmptyState
+                  title="No Block Selected"
+                  variant="minimal"
+                  className="select-none"
+                />
+              </Box>
+            )
+          }
+        />
       </Box>
     </Stack>
   )

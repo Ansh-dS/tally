@@ -249,10 +249,10 @@ export function ResponsePage({
                       visitorDetails={
                         visitorProgress
                           ? {
-                            visitorId: visitorProgress.visitorId,
-                            userAgent: visitorProgress.userAgent,
-                            formId: visitorProgress.formId,
-                          }
+                              visitorId: visitorProgress.visitorId,
+                              userAgent: visitorProgress.userAgent,
+                              formId: visitorProgress.formId,
+                            }
                           : null
                       }
                     />

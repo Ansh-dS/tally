@@ -54,7 +54,7 @@ export default function FlexibleScreen() {
         const deltaY = moveEvent.clientY / 16 - startY
 
         // Calculate new dimensions first so we can use them for the scale math
-        // don't go beyond 20 and 25, while decreasing. 
+        // don't go beyond 20 and 25, while decreasing.
         const newWidth = Math.max(20, startW + deltaX)
         const newHeight = Math.max(25, startH + deltaY)
 
