@@ -193,7 +193,13 @@ export function LiveFieldRenderer({
         <Box
           className={`w-full pt-4 border-0 px-m bg-transparent ${disabled ? 'cursor-not-allowed' : ''}`}
         >
-          <Button variant="primary" size="md" fullWidth disabled={disabled} type="button">
+          <Button
+            variant="primary"
+            size="md"
+            fullWidth
+            disabled={disabled}
+            type="button"
+          >
             {/* Buttons use children, not placeholder */}
             {data?.buttonText || 'Submit'}
           </Button>

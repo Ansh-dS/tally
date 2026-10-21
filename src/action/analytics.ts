@@ -19,6 +19,7 @@ import type {
   aiFormQualitativeSummary,
 } from '@/lib/ai/inputsAndOutputs'
 import type { llmModels } from '@/lib/ai/chooseAi/llmProvider'
+import { Prisma } from '@prisma/client'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Public server action
@@ -164,5 +165,43 @@ export async function getFormLongTextInsights(
   }
 
   // ── 6. Delegate to the typed AI bridge ────────────────────────────────────
-  return analyseLongTextBlock(input)
+  const result = await analyseLongTextBlock(input)
+
+  // ── 7. Persist to PostgreSQL cache so future loads are instant ────────────
+  if (result.status === 'success' && result.data) {
+    try {
+      const existingInsight = await prismaClient.formInsight.findUnique({
+        where: { formId },
+      })
+
+      const existingSummary =
+        (existingInsight?.globalSummary as Record<string, unknown>) ?? {}
+
+      const updatedSummary = {
+        ...existingSummary,
+        [blockId]: result.data,
+      } as unknown as Prisma.InputJsonValue
+
+      await prismaClient.formInsight.upsert({
+        where: { formId },
+        create: {
+          formId,
+          globalSummary: updatedSummary,
+          lastAnalyzedAt: new Date(),
+        },
+        update: {
+          globalSummary: updatedSummary,
+          lastAnalyzedAt: new Date(),
+        },
+      })
+    } catch (persistErr) {
+      console.error(
+        `Failed to persist FormInsight to database for form '${formId}':`,
+        persistErr
+      )
+      // We still return the successfully generated result to the client
+    }
+  }
+
+  return result
 }

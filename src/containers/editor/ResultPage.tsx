@@ -30,41 +30,46 @@ export default function EditorResultPage({
     <Box className=" flex h-full min-h-0 w-full border-0">
       {/*Sidebar (hidden on mobile) */}
       <Box className="hidden lg:flex border-0">
-      <Sidebar
-        position="left"
-        size={'wide'}
-        footer={
-          <Stack
-            gap={'md'}
-            className="mx-4 mt-auto mb-4 border border-fg-brand/20 bg-fg-brand/10 p-4"
-          >
-            <Stack gap="none">
-              <Text variant="label" weight="semibold" className="flex-wrap">
-                Pro Limits Active
-              </Text>
-              <Text variant="caption" color="secondary" className="text-wrap">
-                Upgrade to unlock deeper tagging, unlimited exports, and team
-                seats.
-              </Text>
+        <Sidebar
+          position="left"
+          size={'wide'}
+          footer={
+            <Stack
+              gap={'md'}
+              className="mx-4 mt-auto mb-4 border border-fg-brand/20 bg-fg-brand/10 p-4"
+            >
+              <Stack gap="none">
+                <Text variant="label" weight="semibold" className="flex-wrap">
+                  Pro Limits Active
+                </Text>
+                <Text variant="caption" color="secondary" className="text-wrap">
+                  Upgrade to unlock deeper tagging, unlimited exports, and team
+                  seats.
+                </Text>
+              </Stack>
+              <Button
+                variant="outline"
+                size="sm"
+                startIcon={<Plus />}
+                fullWidth
+              >
+                Upgrade Workspace
+              </Button>
             </Stack>
-            <Button variant="outline" size="sm" startIcon={<Plus />} fullWidth>
-              Upgrade Workspace
-            </Button>
+          }
+        >
+          <Stack gap="sm" className="p-2 w-full">
+            {sidebarItems.map(({ icon: Icon, label, active }) => (
+              <SidebarItem
+                fullWidth
+                key={label}
+                icon={<Icon />}
+                label={label}
+                active={active}
+              />
+            ))}
           </Stack>
-        }
-      >
-        <Stack gap="sm" className="p-2 w-full">
-          {sidebarItems.map(({ icon: Icon, label, active }) => (
-            <SidebarItem
-              fullWidth
-              key={label}
-              icon={<Icon />}
-              label={label}
-              active={active}
-            />
-          ))}
-        </Stack>
-      </Sidebar>
+        </Sidebar>
       </Box>
 
       <Stack align="stretch" className="flex-1 p-m sm:p-2xl overflow-y-auto">

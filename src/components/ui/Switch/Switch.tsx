@@ -16,7 +16,6 @@ type SwitchCustomProps = {
 
 type CleanProps = Prettify<SwitchCustomProps & SwitchVariantsType>
 
-
 export type SwitchProps = CleanProps &
   Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'color' | 'size'>
 
@@ -36,7 +35,9 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
     } = props
 
     // Internal state for uncontrolled mode (when `checked` is not provided)
-    const [internalChecked, setInternalChecked] = useState(defaultChecked ?? false)
+    const [internalChecked, setInternalChecked] = useState(
+      defaultChecked ?? false
+    )
 
     // Controlled if `checked` prop is explicitly provided, otherwise uncontrolled
     const isControlled = controlledChecked !== undefined
@@ -96,4 +97,3 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 )
 
 Switch.displayName = 'Switch'
-

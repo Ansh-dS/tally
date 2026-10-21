@@ -48,11 +48,7 @@ export function Checkbox(props: CheckboxProps): React.ReactElement {
           )}
         />
       </div>
-      {label && (
-        <Text as="span">
-          {label}
-        </Text>
-      )}
+      {label && <Text as="span">{label}</Text>}
     </label>
   )
 }

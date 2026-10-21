@@ -234,8 +234,8 @@ export async function getFormsAndDashboardStats(
       const conversionRatio =
         formStats.views > 0
           ? parseFloat(
-            ((formStats.submissions / formStats.views) * 100).toFixed(1)
-          )
+              ((formStats.submissions / formStats.views) * 100).toFixed(1)
+            )
           : 0
 
       if (form.published) {

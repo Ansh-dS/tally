@@ -96,7 +96,10 @@ export default function FormsDashboard({
 
       {/* Stats Zone */}
       <Stack justify={'center'} align={'center'}>
-        <Stack direction="horizontal" className="gap-m sm:gap-xl w-full mb-xl sm:mb-3xl flex-col sm:flex-row">
+        <Stack
+          direction="horizontal"
+          className="gap-m sm:gap-xl w-full mb-xl sm:mb-3xl flex-col sm:flex-row"
+        >
           <Stat
             label="Total Views"
             value={formsAndStat.globalStats.totalViews}
